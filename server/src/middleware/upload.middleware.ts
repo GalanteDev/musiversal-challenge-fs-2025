@@ -2,6 +2,7 @@ import multer, { FileFilterCallback } from "multer";
 import { Request } from "express";
 import path from "path";
 import fs from "fs";
+import { v4 as uuidv4 } from "uuid";
 
 const uploadDir = path.join(__dirname, "../../uploads");
 
@@ -11,23 +12,10 @@ if (!fs.existsSync(uploadDir)) {
 
 const storage = multer.diskStorage({
   destination: (_req, _file, cb) => cb(null, uploadDir),
-  filename: (req: Request, file, cb) => {
+  filename: (_req, file, cb) => {
     const ext = path.extname(file.originalname);
-    const rawName = req.body.name || "song";
-
-    const safeName = rawName
-      .toLowerCase()
-      .replace(/[^a-z0-9]/gi, "-")
-      .substring(0, 50);
-
-    const now = new Date();
-    const timestamp = now
-      .toISOString()
-      .replace(/[-:]/g, "")
-      .replace("T", "-")
-      .slice(0, 15); // yyyyMMdd-HHmmss
-
-    cb(null, `${safeName}--${timestamp}${ext}`);
+    const id = uuidv4();
+    cb(null, `${id}${ext}`);
   },
 });
 

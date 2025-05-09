@@ -39,4 +39,25 @@ export class SongService {
     const [deleted] = this.songs.splice(index, 1);
     return deleted;
   }
+
+  update(id: string, name: string, artist: string): Song | null {
+    const song = this.songs.find((s) => s.id === id);
+    if (!song) return null;
+
+    // Check for duplicate name + artist in other songs
+    const duplicate = this.songs.some(
+      (s) =>
+        s.id !== id &&
+        s.name.trim().toLowerCase() === name.trim().toLowerCase() &&
+        s.artist.trim().toLowerCase() === artist.trim().toLowerCase()
+    );
+
+    if (duplicate) {
+      throw new Error("Another song with this name and artist already exists.");
+    }
+
+    song.name = name;
+    song.artist = artist;
+    return song;
+  }
 }
