@@ -11,7 +11,14 @@ export const uploadAndValidate = (
   next: NextFunction
 ): void => {
   upload.single("image")(req, res, (err) => {
-    if (err) return sendError(res, 400, [err.message]);
+    if (err) {
+      const isUnexpectedField = err.message.includes("Unexpected field");
+      const message = isUnexpectedField
+        ? "Missing 'image' field in form-data."
+        : err.message;
+
+      return sendError(res, 400, [message]);
+    }
 
     const file = req.file ? { filename: req.file.filename } : null;
 

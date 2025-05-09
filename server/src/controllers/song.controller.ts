@@ -1,11 +1,10 @@
 import { Request, Response } from "express";
-import { SongService } from "../services/song.service";
+import { songService } from "../services/song.service";
 import path from "path";
 import fs from "fs";
 import { sendError } from "../utils/sendError";
 
 const uploadDir = path.join(__dirname, "../../uploads");
-const songService = new SongService();
 
 export const getAllSongs = (_req: Request, res: Response): void => {
   const songs = songService.getAll();

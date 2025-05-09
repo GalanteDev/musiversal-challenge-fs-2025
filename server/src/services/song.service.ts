@@ -61,3 +61,5 @@ export class SongService {
     return song;
   }
 }
+
+export const songService = new SongService();
