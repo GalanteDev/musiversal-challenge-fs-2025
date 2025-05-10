@@ -31,7 +31,8 @@ export async function addSong(formData: FormData) {
 
     if (!response.ok) {
       const errorData = await response.json();
-      const error = new Error("Failed to add song") as ApiError;
+      const errorMessage = errorData?.error || "Failed to add song";
+      const error = new Error(errorMessage) as ApiError;
       error.response = { data: errorData };
       throw error;
     }
@@ -40,10 +41,11 @@ export async function addSong(formData: FormData) {
   } catch (error: unknown) {
     if (error instanceof Error) {
       console.error("Error adding song:", error.message);
+      throw new Error(error.message); // Propagar mensaje del backend
     } else {
       console.error("Unknown error adding song");
+      throw new Error("Unknown error adding song");
     }
-    throw error;
   }
 }
 
