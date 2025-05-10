@@ -8,7 +8,6 @@ interface Song {
   name: string;
   artist: string;
   imageUrl: string;
-  isNew?: boolean;
 }
 
 interface SongGridProps {
@@ -85,7 +84,6 @@ export default function SongGrid({
           artist={song.artist}
           imageUrl={song.imageUrl}
           onDelete={onDeleteSong}
-          isNew={song.isNew}
         />
       ))}
     </div>

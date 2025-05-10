@@ -3,6 +3,15 @@
 import type React from "react";
 import { useState, useRef, useEffect } from "react";
 
+interface ApiError extends Error {
+  response?: {
+    data?: {
+      status?: string;
+      errors?: string[];
+    };
+  };
+}
+
 interface SongUploaderProps {
   onAddSong: (formData: FormData) => Promise<boolean>;
 }
@@ -14,6 +23,14 @@ export default function SongUploader({ onAddSong }: SongUploaderProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [isDragging, setIsDragging] = useState(false);
+  const [errors, setErrors] = useState<{
+    name?: string;
+    artist?: string;
+    image?: string;
+    general?: string[];
+  }>({});
+  const [attemptedSubmit, setAttemptedSubmit] = useState(false);
+
   const fileInputRef = useRef<HTMLInputElement>(null);
   const dropAreaRef = useRef<HTMLDivElement>(null);
 
@@ -37,7 +54,6 @@ export default function SongUploader({ onAddSong }: SongUploaderProps) {
       e.preventDefault();
       e.stopPropagation();
 
-      // Only set isDragging to false if we're leaving the drop area (not entering a child element)
       if (e.currentTarget === e.target) {
         setIsDragging(false);
       }
@@ -51,16 +67,20 @@ export default function SongUploader({ onAddSong }: SongUploaderProps) {
       const files = e.dataTransfer?.files;
       if (files && files.length > 0) {
         const file = files[0];
-        // Check if the file is an image
         if (file.type.startsWith("image/")) {
           setImageFile(file);
+          setErrors((prev) => ({ ...prev, image: undefined }));
+
           const reader = new FileReader();
           reader.onload = () => {
             setImagePreview(reader.result as string);
           };
           reader.readAsDataURL(file);
         } else {
-          alert("Please upload an image file (PNG, JPG, GIF)");
+          setErrors((prev) => ({
+            ...prev,
+            image: "Please upload an image file (PNG, JPG, GIF)",
+          }));
         }
       }
     };
@@ -81,53 +101,124 @@ export default function SongUploader({ onAddSong }: SongUploaderProps) {
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      setImageFile(file);
-      const reader = new FileReader();
-      reader.onload = () => {
-        setImagePreview(reader.result as string);
-      };
-      reader.readAsDataURL(file);
+      if (file.type.startsWith("image/")) {
+        setImageFile(file);
+        setErrors((prev) => ({ ...prev, image: undefined }));
+
+        const reader = new FileReader();
+        reader.onload = () => {
+          setImagePreview(reader.result as string);
+        };
+        reader.readAsDataURL(file);
+      } else {
+        setErrors((prev) => ({
+          ...prev,
+          image: "Please upload an image file (PNG, JPG, GIF)",
+        }));
+        if (fileInputRef.current) {
+          fileInputRef.current.value = "";
+        }
+      }
     }
+  };
+
+  const validateForm = () => {
+    const newErrors: typeof errors = {};
+
+    if (!name.trim()) {
+      newErrors.name = "Song name is required";
+    } else if (name.length > 100) {
+      newErrors.name = "Song name must be less than 100 characters";
+    }
+
+    if (!artist.trim()) {
+      newErrors.artist = "Artist name is required";
+    } else if (artist.length > 100) {
+      newErrors.artist = "Artist name must be less than 100 characters";
+    }
+
+    if (!imageFile) {
+      newErrors.image = "Cover image is required";
+    }
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!name || !artist || !imageFile) {
-      alert("Please fill in all fields and upload an image");
+    setAttemptedSubmit(true);
+
+    if (!validateForm()) {
       return;
     }
 
     setIsSubmitting(true);
+    setErrors({});
 
     const formData = new FormData();
     formData.append("name", name);
     formData.append("artist", artist);
-    formData.append("image", imageFile);
+    formData.append("image", imageFile!);
 
     try {
       const success = await onAddSong(formData);
       if (success) {
-        // Reset form after successful upload
+        // Reset form
         setName("");
         setArtist("");
         setImageFile(null);
         setImagePreview(null);
+        setAttemptedSubmit(false);
         if (fileInputRef.current) {
           fileInputRef.current.value = "";
         }
-      } else {
-        throw new Error("Failed to add song");
       }
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    } catch (error) {
-      alert("Failed to upload song. Please try again.");
+    } catch (error: unknown) {
+      console.error("Error in SongUploader:", error);
+
+      if (error instanceof Error) {
+        const apiError = error as ApiError;
+
+        // Mostrar errores del backend si están disponibles
+        if (
+          apiError.response?.data?.errors &&
+          apiError.response.data.errors.length > 0
+        ) {
+          setErrors({ general: apiError.response.data.errors });
+          console.log("Setting API errors:", apiError.response.data.errors);
+        } else {
+          // Si no hay errores específicos del backend, mostrar el mensaje de error general
+          setErrors({
+            general: [
+              apiError.message || "Failed to upload song. Please try again.",
+            ],
+          });
+        }
+      } else {
+        setErrors({ general: ["Failed to upload song. Please try again."] });
+      }
     } finally {
       setIsSubmitting(false);
     }
   };
 
+  // Clase común para los inputs para evitar duplicación
+  const inputClass = `w-full bg-[#252525] text-white placeholder-gray-500 rounded-md px-4 py-2.5 focus:outline-none transition-colors duration-300`;
+
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
+      {/* General errors - Mejorado para asegurar que los errores se muestren */}
+      {errors.general && errors.general.length > 0 && (
+        <div className="bg-red-900 bg-opacity-20 border border-red-800 rounded-md p-3 mb-4">
+          {errors.general.map((error, index) => (
+            <p key={index} className="text-red-200 text-sm font-medium">
+              {error}
+            </p>
+          ))}
+        </div>
+      )}
+
       {/* Song name input */}
       <div>
         <label
@@ -140,11 +231,36 @@ export default function SongUploader({ onAddSong }: SongUploaderProps) {
           type="text"
           id="name"
           value={name}
-          onChange={(e) => setName(e.target.value)}
-          className="w-full bg-[#252525] border border-[#333333] rounded-md px-4 py-2.5 text-white placeholder-gray-500 focus:outline-none focus:border-[#FFCC00] focus:ring-1 focus:ring-[#FFCC00] transition-colors duration-300"
+          onChange={(e) => {
+            setName(e.target.value);
+            if (attemptedSubmit || errors.name) {
+              if (!e.target.value.trim()) {
+                setErrors((prev) => ({
+                  ...prev,
+                  name: "Song name is required",
+                }));
+              } else if (e.target.value.length > 100) {
+                setErrors((prev) => ({
+                  ...prev,
+                  name: "Song name must be less than 100 characters",
+                }));
+              } else {
+                setErrors((prev) => ({ ...prev, name: undefined }));
+              }
+            }
+          }}
+          className={`${inputClass} ${
+            errors.name
+              ? "border border-red-500 focus:border-red-500 focus:ring-red-500"
+              : "border border-[#333333] focus:border-[#FFCC00] focus:ring-[#FFCC00]"
+          }`}
           placeholder="Enter song name"
           disabled={isSubmitting}
+          style={{ backgroundColor: "#252525" }}
         />
+        {errors.name && (
+          <p className="mt-1 text-red-500 text-xs">{errors.name}</p>
+        )}
       </div>
 
       {/* Artist input */}
@@ -159,11 +275,36 @@ export default function SongUploader({ onAddSong }: SongUploaderProps) {
           type="text"
           id="artist"
           value={artist}
-          onChange={(e) => setArtist(e.target.value)}
-          className="w-full bg-[#252525] border border-[#333333] rounded-md px-4 py-2.5 text-white placeholder-gray-500 focus:outline-none focus:border-[#FFCC00] focus:ring-1 focus:ring-[#FFCC00] transition-colors duration-300"
+          onChange={(e) => {
+            setArtist(e.target.value);
+            if (attemptedSubmit || errors.artist) {
+              if (!e.target.value.trim()) {
+                setErrors((prev) => ({
+                  ...prev,
+                  artist: "Artist name is required",
+                }));
+              } else if (e.target.value.length > 100) {
+                setErrors((prev) => ({
+                  ...prev,
+                  artist: "Artist name must be less than 100 characters",
+                }));
+              } else {
+                setErrors((prev) => ({ ...prev, artist: undefined }));
+              }
+            }
+          }}
+          className={`${inputClass} ${
+            errors.artist
+              ? "border border-red-500 focus:border-red-500 focus:ring-red-500"
+              : "border border-[#333333] focus:border-[#FFCC00] focus:ring-[#FFCC00]"
+          }`}
           placeholder="Enter artist name"
           disabled={isSubmitting}
+          style={{ backgroundColor: "#252525" }}
         />
+        {errors.artist && (
+          <p className="mt-1 text-red-500 text-xs">{errors.artist}</p>
+        )}
       </div>
 
       {/* Image upload with drag and drop */}
@@ -178,7 +319,9 @@ export default function SongUploader({ onAddSong }: SongUploaderProps) {
         <div
           ref={dropAreaRef}
           className={`mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-dashed rounded-md transition-all duration-300 ${
-            isDragging
+            errors.image
+              ? "border-red-500 bg-red-900/5"
+              : isDragging
               ? "border-[#FFCC00] bg-[#FFCC00]/5"
               : "border-[#333333] hover:border-[#444444]"
           }`}
@@ -196,6 +339,12 @@ export default function SongUploader({ onAddSong }: SongUploaderProps) {
                   onClick={() => {
                     setImageFile(null);
                     setImagePreview(null);
+                    if (attemptedSubmit) {
+                      setErrors((prev) => ({
+                        ...prev,
+                        image: "Cover image is required",
+                      }));
+                    }
                     if (fileInputRef.current) {
                       fileInputRef.current.value = "";
                     }
@@ -214,7 +363,11 @@ export default function SongUploader({ onAddSong }: SongUploaderProps) {
             ) : (
               <svg
                 className={`mx-auto h-12 w-12 transition-colors duration-300 ${
-                  isDragging ? "text-[#FFCC00]" : "text-gray-500"
+                  errors.image
+                    ? "text-red-500"
+                    : isDragging
+                    ? "text-[#FFCC00]"
+                    : "text-gray-500"
                 }`}
                 stroke="currentColor"
                 fill="none"
@@ -251,13 +404,20 @@ export default function SongUploader({ onAddSong }: SongUploaderProps) {
             </div>
             <p
               className={`text-xs transition-colors duration-300 ${
-                isDragging ? "text-[#FFCC00]" : "text-gray-500"
+                errors.image
+                  ? "text-red-500"
+                  : isDragging
+                  ? "text-[#FFCC00]"
+                  : "text-gray-500"
               }`}
             >
               {isDragging ? "Drop your image here" : "PNG, JPG, GIF up to 5MB"}
             </p>
           </div>
         </div>
+        {errors.image && (
+          <p className="mt-1 text-red-500 text-xs">{errors.image}</p>
+        )}
       </div>
 
       {/* Submit button */}

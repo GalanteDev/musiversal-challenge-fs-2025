@@ -12,7 +12,16 @@ interface Song {
   name: string;
   artist: string;
   imageUrl: string;
-  isNew?: boolean;
+}
+
+// Definir la interfaz para los errores de la API
+interface ApiError extends Error {
+  response?: {
+    data?: {
+      status?: string;
+      errors?: string[];
+    };
+  };
 }
 
 function App() {
@@ -54,19 +63,21 @@ function App() {
   const handleAddSong = async (formData: FormData) => {
     try {
       const newSong = await addSong(formData);
-
-      // Add the isNew flag to trigger the animation
-      const songWithNewFlag = {
-        ...newSong,
-        isNew: true,
-      };
-
-      setSongs([...songs, songWithNewFlag]);
+      setSongs([...songs, newSong]);
       return true;
-    } catch (err) {
-      console.error(err);
-      alert("Failed to add song");
-      return false;
+    } catch (error: unknown) {
+      console.error("Error in handleAddSong:", error);
+
+      // Propagar el error con su mensaje para que el componente SongUploader pueda mostrarlo
+      if (error instanceof Error) {
+        const apiError = error as ApiError;
+        if (apiError.response?.data?.errors) {
+          throw apiError; // Propagar el error con los mensajes del backend
+        }
+        throw error; // Propagar el error original
+      }
+
+      throw new Error("Failed to add song");
     }
   };
 

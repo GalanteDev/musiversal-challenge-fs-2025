@@ -1,29 +1,35 @@
-// API service for interacting with the song endpoints
-
-export interface Song {
-  id: string;
-  name: string;
-  artist: string;
-  imageUrl: string;
+interface ApiError extends Error {
+  response?: {
+    data?: {
+      status?: string;
+      errors?: string[];
+    };
+  };
 }
 
-// Get all songs
-export async function getAllSongs(): Promise<Song[]> {
+export async function getAllSongs() {
   try {
     const response = await fetch("/songs");
+
     if (!response.ok) {
-      throw new Error(`Error: ${response.status}`);
+      const errorData = await response.json();
+      const error = new Error("Failed to fetch songs") as ApiError;
+      error.response = { data: errorData };
+      throw error;
     }
-    console.log("Response:", response);
+
     return await response.json();
-  } catch (error) {
-    console.error("Failed to fetch songs:", error);
+  } catch (error: unknown) {
+    if (error instanceof Error) {
+      console.error("Error fetching songs:", error.message);
+    } else {
+      console.error("Unknown error fetching songs");
+    }
     throw error;
   }
 }
 
-// Add a new song
-export async function addSong(formData: FormData): Promise<Song> {
+export async function addSong(formData: FormData) {
   try {
     const response = await fetch("/songs", {
       method: "POST",
@@ -31,28 +37,43 @@ export async function addSong(formData: FormData): Promise<Song> {
     });
 
     if (!response.ok) {
-      throw new Error(`Error: ${response.status}`);
+      const errorData = await response.json();
+      const error = new Error("Failed to add song") as ApiError;
+      error.response = { data: errorData };
+      throw error;
     }
 
     return await response.json();
-  } catch (error) {
-    console.error("Failed to add song:", error);
+  } catch (error: unknown) {
+    if (error instanceof Error) {
+      console.error("Error adding song:", error.message);
+    } else {
+      console.error("Unknown error adding song");
+    }
     throw error;
   }
 }
 
-// Delete a song
-export async function deleteSong(id: string): Promise<void> {
+export async function deleteSong(id: string) {
   try {
     const response = await fetch(`/songs/${id}`, {
       method: "DELETE",
     });
 
     if (!response.ok) {
-      throw new Error(`Error: ${response.status}`);
+      const errorData = await response.json();
+      const error = new Error("Failed to delete song") as ApiError;
+      error.response = { data: errorData };
+      throw error;
     }
-  } catch (error) {
-    console.error(`Failed to delete song with ID ${id}:`, error);
+
+    return await response.json();
+  } catch (error: unknown) {
+    if (error instanceof Error) {
+      console.error("Error deleting song:", error.message);
+    } else {
+      console.error("Unknown error deleting song");
+    }
     throw error;
   }
 }

@@ -53,9 +53,6 @@ export default function ConfirmModal({
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, [isOpen, onClose]);
 
-  // Simple solution: don't manipulate body overflow at all
-  // This avoids scroll issues while still allowing the modal to work
-
   if (!isOpen) return null;
 
   return (

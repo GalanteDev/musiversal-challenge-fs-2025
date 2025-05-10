@@ -66,3 +66,24 @@ button:focus-visible {
   outline: 2px solid #ffcc00;
   outline-offset: 2px;
 }
+
+/* Fix for autofill background color in inputs */
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus,
+input:-webkit-autofill:active {
+  -webkit-box-shadow: 0 0 0 30px #252525 inset !important;
+  -webkit-text-fill-color: white !important;
+  caret-color: white !important;
+  transition: background-color 5000s ease-in-out 0s;
+}
+
+/* Ensure inputs maintain dark background */
+input {
+  background-color: #252525 !important;
+}
+
+/* Ensure focus doesn't change background color */
+input:focus {
+  background-color: #252525 !important;
+}
