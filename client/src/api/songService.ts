@@ -7,24 +7,17 @@ interface ApiError extends Error {
   };
 }
 
+const API_URL = import.meta.env.VITE_API_URL;
+
 export async function getAllSongs() {
   try {
-    const response = await fetch("/songs");
-
+    const response = await fetch(`${API_URL}/songs`);
     if (!response.ok) {
-      const errorData = await response.json();
-      const error = new Error("Failed to fetch songs") as ApiError;
-      error.response = { data: errorData };
-      throw error;
+      throw new Error("Failed to fetch songs");
     }
-
     return await response.json();
-  } catch (error: unknown) {
-    if (error instanceof Error) {
-      console.error("Error fetching songs:", error.message);
-    } else {
-      console.error("Unknown error fetching songs");
-    }
+  } catch (error) {
+    console.error("Error fetching songs:", error);
     throw error;
   }
 }

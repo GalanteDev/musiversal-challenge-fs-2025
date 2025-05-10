@@ -4,12 +4,17 @@ import path from "path";
 import songRoutes from "./routes/song.routes";
 import { songService } from "./services/song.service";
 import "dotenv/config";
+import { preloadProtectedImages } from "./utils/preloadedProtectedImages";
 
 const app = express();
 const PORT = process.env.PORT ? parseInt(process.env.PORT, 10) : 4000;
 
 app.use(cors());
 app.use(express.json());
+
+// 👇 Preload images before creating songs
+preloadProtectedImages();
+
 songService.create(
   "Hammer Smashed Face",
   "Cannibal Corpse",

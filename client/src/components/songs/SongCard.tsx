@@ -13,6 +13,10 @@ interface SongCardProps {
   isNew?: boolean;
 }
 
+const API_URL = import.meta.env.DEV ? "" : import.meta.env.VITE_API_URL;
+
+console.log("palito", API_URL);
+
 export default function SongCard({
   id,
   name,
@@ -122,11 +126,7 @@ export default function SongCard({
     }
   };
 
-  const formattedImageUrl = imageUrl.startsWith("http")
-    ? imageUrl
-    : imageUrl.startsWith("/")
-    ? `http://localhost:4000${imageUrl}`
-    : `http://localhost:4000/uploads/${imageUrl}`;
+  const formattedImageUrl = `${import.meta.env.VITE_API_URL}${imageUrl}`;
 
   return (
     <>

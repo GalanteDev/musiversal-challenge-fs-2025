@@ -1,10 +1,12 @@
 import type { Song } from "../types";
 
-const API_URL = import.meta.env.VITE_API_URL || "http://localhost:4000";
+const API_URL = import.meta.env.DEV ? "" : import.meta.env.VITE_API_URL;
 
 export async function fetchSongs(): Promise<Song[]> {
   try {
     const response = await fetch(`${API_URL}/songs`);
+
+    console.log("Response from API:", response);
 
     if (!response.ok) {
       throw new Error(`Error fetching songs: ${response.statusText}`);
