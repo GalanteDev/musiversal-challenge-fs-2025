@@ -68,11 +68,22 @@ export const deleteSong = (req: Request, res: Response): void => {
     const deleted = songService.delete(id);
 
     if (!deleted) {
-      return sendError(res, 404, ["Song not found."]);
+      sendError(res, 404, ["Song not found."]);
+      return;
     }
 
-    const filePath = path.join(uploadDir, path.basename(deleted.imageUrl));
-    if (fs.existsSync(filePath)) fs.unlinkSync(filePath);
+    const fileName = path.basename(deleted.imageUrl);
+    const filePath = path.join(uploadDir, fileName);
+
+    const protectedImages = [
+      "slayer.png",
+      "sepultura.png",
+      "canibalcorpse.png",
+    ];
+
+    if (!protectedImages.includes(fileName) && fs.existsSync(filePath)) {
+      fs.unlinkSync(filePath);
+    }
 
     res.status(200).json({ status: "success", message: "Song deleted." });
   } catch (err) {

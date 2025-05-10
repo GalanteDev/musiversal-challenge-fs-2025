@@ -12,10 +12,11 @@ app.use(express.json());
 songService.create(
   "Hammer Smashed Face",
   "Cannibal Corpse",
-  "cannibal-corpse.png"
+  "canibalcorpse.png"
 );
 songService.create("Roots Bloody Roots", "Sepultura", "sepultura.png");
 songService.create("Raining Blood", "Slayer", "slayer.png");
+
 app.use("/uploads", express.static(path.join(__dirname, "../uploads")));
 app.use("/songs", songRoutes);
 
