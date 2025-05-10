@@ -1,6 +1,4 @@
 "use client";
-
-import { useEffect } from "react";
 import SongCard from "./SongCard";
 
 interface Song {
@@ -21,26 +19,6 @@ export default function SongGrid({
   onDeleteSong,
   isLoading = false,
 }: SongGridProps) {
-  useEffect(() => {
-    const style = document.createElement("style");
-    style.textContent = `
-      @keyframes fadeInUp {
-        from {
-          opacity: 0;
-          transform: translateY(24px);
-        }
-        to {
-          opacity: 1;
-          transform: translateY(0);
-        }
-      }
-    `;
-    document.head.appendChild(style);
-    return () => {
-      document.head.removeChild(style);
-    };
-  }, []);
-
   if (isLoading) {
     return (
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -85,11 +63,8 @@ export default function SongGrid({
       {songs.map((song, index) => (
         <div
           key={song.id}
-          className="card-reveal"
-          style={{
-            animation: "fadeInUp 0.9s ease-out forwards",
-            animationDelay: `${index * 10}ms`,
-          }}
+          className="card-reveal fade-in-up"
+          style={{ animationDelay: `${index * 10}ms` }}
         >
           <SongCard
             id={song.id}

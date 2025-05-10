@@ -10,6 +10,8 @@ body {
   margin: 0;
   min-width: 320px;
   min-height: 100vh;
+  overscroll-behavior: none;
+  overflow-x: hidden;
 }
 
 /* Custom animation for new cards */
@@ -97,4 +99,8 @@ input:focus {
     opacity: 1;
     transform: translateY(0);
   }
+}
+
+.fade-in-up {
+  animation: fadeInUp 0.9s ease-out forwards;
 }
