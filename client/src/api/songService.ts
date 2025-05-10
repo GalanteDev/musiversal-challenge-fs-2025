@@ -24,7 +24,7 @@ export async function getAllSongs() {
 
 export async function addSong(formData: FormData) {
   try {
-    const response = await fetch("/songs", {
+    const response = await fetch(`${API_URL}/songs`, {
       method: "POST",
       body: formData,
     });
@@ -49,7 +49,7 @@ export async function addSong(formData: FormData) {
 
 export async function deleteSong(id: string) {
   try {
-    const response = await fetch(`/songs/${id}`, {
+    const response = await fetch(`${API_URL}/songs/${id}`, {
       method: "DELETE",
     });
 

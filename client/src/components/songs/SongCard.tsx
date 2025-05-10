@@ -13,10 +13,6 @@ interface SongCardProps {
   isNew?: boolean;
 }
 
-const API_URL = import.meta.env.DEV ? "" : import.meta.env.VITE_API_URL;
-
-console.log("palito", API_URL);
-
 export default function SongCard({
   id,
   name,
