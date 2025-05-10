@@ -411,7 +411,7 @@ export default function SongUploader({ onAddSong }: SongUploaderProps) {
                   : "text-gray-500"
               }`}
             >
-              {isDragging ? "Drop your image here" : "PNG, JPG, GIF up to 5MB"}
+              {isDragging ? "Drop your image here" : "PNG, JPG, GIF up to 2MB"}
             </p>
           </div>
         </div>
