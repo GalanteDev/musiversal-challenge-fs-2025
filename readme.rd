@@ -1,4 +1,7 @@
-````
+```
+
+```
+
 # 🎵 **Musiversal Songs Library**
 
 **Fullstack Challenge Project – 2025 edition**
@@ -49,6 +52,7 @@ This is a **fullstack application** built for the [Musiversal Fullstack Challeng
 git clone https://github.com/your-username/musiversal-songs-library.git
 cd musiversal-songs-library
 ```
+
 ````
 
 ### 2. Install dependencies:
@@ -147,3 +151,4 @@ Made with ❤️ by **Julian Galante** for Musiversal. Keep creating, keep colla
 ```
 
 ```
+````
