@@ -1,7 +1,7 @@
 "use client";
 
 import type React from "react";
-import { useState, useEffect, useRef } from "react";
+import { useState, useMemo, useRef, useEffect } from "react";
 import ConfirmModal from "../ui/ConfirmModal";
 
 interface SongCardProps {
@@ -10,7 +10,6 @@ interface SongCardProps {
   artist: string;
   imageUrl: string;
   onDelete: (id: string) => void;
-  isNew?: boolean;
 }
 
 export default function SongCard({
@@ -19,67 +18,73 @@ export default function SongCard({
   artist,
   imageUrl,
   onDelete,
-  isNew = false,
 }: SongCardProps) {
   const [isHovering, setIsHovering] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const [imageLoaded, setImageLoaded] = useState(false);
-  const [showNewEffect, setShowNewEffect] = useState(isNew);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
+  const [isTouchDevice, setIsTouchDevice] = useState(false);
+  const [isCardTouched, setIsCardTouched] = useState(false);
   const cardRef = useRef<HTMLDivElement>(null);
-  const imageRef = useRef<HTMLImageElement>(null);
+  const touchTimeoutRef = useRef<number | null>(null);
 
-  // Generate random year and duration once when component mounts
-  const randomYear = useRef(Math.floor(Math.random() * 26) + 1990).current; // Random year between 1990-2015
+  // Generate random year and duration once per component instance
+  const randomYear = useMemo(() => Math.floor(Math.random() * 26) + 1990, []);
+  const randomDuration = useMemo(() => {
+    const seconds = Math.floor(Math.random() * (300 - 120 + 1)) + 120;
+    return `${Math.floor(seconds / 60)}:${String(seconds % 60).padStart(
+      2,
+      "0"
+    )}`;
+  }, []);
 
-  // Generate random duration between 2 and 5 minutes
-  const generateRandomDuration = () => {
-    const minSeconds = 2 * 60; // 2 minutes in seconds
-    const maxSeconds = 5 * 60; // 5 minutes in seconds
-    const totalSeconds =
-      Math.floor(Math.random() * (maxSeconds - minSeconds + 1)) + minSeconds;
+  // Detect mobile and touch devices
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
 
-    const minutes = Math.floor(totalSeconds / 60);
-    const seconds = totalSeconds % 60;
+    // Check if device supports touch
+    const checkTouchDevice = () => {
+      setIsTouchDevice(
+        "ontouchstart" in window || navigator.maxTouchPoints > 0
+      );
+    };
 
-    // Format as m:ss
-    return `${minutes}:${seconds.toString().padStart(2, "0")}`;
+    checkMobile();
+    checkTouchDevice();
+
+    window.addEventListener("resize", checkMobile);
+    return () => window.removeEventListener("resize", checkMobile);
+  }, []);
+
+  // Handle touch interactions
+  const handleTouchStart = () => {
+    if (!isTouchDevice) return;
+
+    // Clear any existing timeout
+    if (touchTimeoutRef.current) {
+      window.clearTimeout(touchTimeoutRef.current);
+    }
+
+    setIsCardTouched(true);
   };
 
-  const randomDuration = useRef(generateRandomDuration()).current;
+  const handleTouchEnd = () => {
+    if (!isTouchDevice) return;
 
-  // Handle the "new" animation effect
+    // Set a timeout to reset the touched state after a delay
+    touchTimeoutRef.current = window.setTimeout(() => {
+      setIsCardTouched(false);
+    }, 3000); // Keep controls visible for 3 seconds after touch
+  };
+
+  // Clean up timeout on unmount
   useEffect(() => {
-    if (isNew) {
-      const timer = setTimeout(() => {
-        setShowNewEffect(false);
-      }, 1800);
-      return () => clearTimeout(timer);
-    }
-  }, [isNew]);
-
-  // Intersection Observer for reveal animation
-  useEffect(() => {
-    const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            entry.target.classList.add("card-revealed");
-            observer.unobserve(entry.target);
-          }
-        });
-      },
-      { threshold: 0.1 }
-    );
-
-    if (cardRef.current) {
-      observer.observe(cardRef.current);
-    }
-
     return () => {
-      if (cardRef.current) {
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-        observer.unobserve(cardRef.current);
+      if (touchTimeoutRef.current) {
+        window.clearTimeout(touchTimeoutRef.current);
       }
     };
   }, []);
@@ -90,15 +95,8 @@ export default function SongCard({
       await onDelete(id);
     } finally {
       setIsDeleting(false);
-      // Ensure modal is closed
       setShowDeleteModal(false);
     }
-  };
-
-  const handleDeleteClick = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    e.preventDefault();
-    setShowDeleteModal(true);
   };
 
   const handleShare = (e: React.MouseEvent) => {
@@ -124,24 +122,23 @@ export default function SongCard({
 
   const formattedImageUrl = `${import.meta.env.VITE_API_URL}${imageUrl}`;
 
+  // Show hover effects based on device type and interaction state
+  const showHoverEffects = isMobile || isHovering || isCardTouched;
+
   return (
     <>
       <div
         ref={cardRef}
-        className={`group card-reveal relative rounded-lg overflow-hidden border border-[#333333] transition-all duration-700 ease-out aspect-[16/9] ${
-          showNewEffect ? "animate-newCard" : ""
-        }`}
+        className="group relative rounded-lg overflow-hidden border border-[#333333] aspect-[16/9] transition-all duration-700 ease-out"
         onMouseEnter={() => setIsHovering(true)}
         onMouseLeave={() => setIsHovering(false)}
+        onTouchStart={handleTouchStart}
+        onTouchEnd={handleTouchEnd}
         style={{
-          boxShadow: showNewEffect
-            ? "0 0 0 2px rgba(255, 204, 0, 0.5), 0 4px 20px rgba(0, 0, 0, 0.2)"
-            : isHovering
+          boxShadow: showHoverEffects
             ? "0 8px 30px rgba(0, 0, 0, 0.3)"
             : "0 4px 10px rgba(0, 0, 0, 0.1)",
-          transform: isHovering ? "translateY(-4px)" : "translateY(0)",
-          transition:
-            "transform 0.7s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.7s cubic-bezier(0.22, 1, 0.36, 1)",
+          transform: showHoverEffects ? "translateY(-4px)" : "translateY(0)",
         }}
       >
         {/* Full-size background image */}
@@ -153,11 +150,12 @@ export default function SongCard({
           )}
 
           <img
-            ref={imageRef}
             src={formattedImageUrl || "/placeholder.svg"}
             alt={`${name} by ${artist}`}
             className={`w-full h-full object-cover transition-all duration-1000 ease-out will-change-transform ${
-              isHovering ? "scale-[1.04] filter brightness-[1.05]" : "scale-100"
+              showHoverEffects
+                ? "scale-[1.04] filter brightness-[1.05]"
+                : "scale-100"
             } ${imageLoaded ? "opacity-100" : "opacity-0"}`}
             onLoad={() => setImageLoaded(true)}
           />
@@ -165,7 +163,7 @@ export default function SongCard({
           {/* Enhanced gradient overlay for text readability */}
           <div
             className={`absolute inset-0 transition-opacity duration-700 ease-out ${
-              isHovering ? "opacity-85" : "opacity-70"
+              showHoverEffects ? "opacity-85" : "opacity-70"
             }`}
             style={{
               background: `linear-gradient(to top, 
@@ -179,7 +177,7 @@ export default function SongCard({
           ></div>
 
           {/* Subtle animated gradient overlay */}
-          {isHovering && (
+          {showHoverEffects && (
             <div
               className="absolute inset-0 opacity-20 pointer-events-none"
               style={{
@@ -190,9 +188,9 @@ export default function SongCard({
         </div>
 
         {/* Content overlay with enhanced professional design */}
-        <div className="absolute inset-0 flex flex-col justify-end p-6 z-10">
+        <div className="absolute inset-0 flex flex-col justify-end p-4 sm:p-6 z-10">
           {/* Year badge - always visible */}
-          <div className="flex items-center gap-2 mb-3">
+          <div className="flex items-center gap-2 mb-2 sm:mb-3">
             <span className="px-2 py-0.5 bg-white/10 text-white/80 text-xs font-medium rounded-full backdrop-blur-sm">
               {randomYear}
             </span>
@@ -200,19 +198,21 @@ export default function SongCard({
 
           {/* Decorative line */}
           <div
-            className={`w-12 h-0.5 bg-[#FFCC00] mb-3 transition-all duration-700 ease-out ${
-              isHovering ? "w-20 opacity-100" : "opacity-60"
+            className={`w-12 h-0.5 bg-[#FFCC00] mb-2 sm:mb-3 transition-all duration-700 ease-out ${
+              showHoverEffects ? "w-20 opacity-100" : "opacity-60"
             }`}
           ></div>
 
           {/* Main content with improved typography */}
-          <div className="mb-4">
+          <div className="mb-3 sm:mb-4">
             <h3
-              className={`font-semibold text-2xl mb-1.5 line-clamp-1 transition-all duration-700 ease-out ${
-                isHovering ? "text-[#FFCC00]" : "text-white"
+              className={`font-semibold text-xl sm:text-2xl mb-1 sm:mb-1.5 line-clamp-1 transition-all duration-700 ease-out ${
+                showHoverEffects ? "text-[#FFCC00]" : "text-white"
               }`}
               style={{
-                textShadow: isHovering ? "0 2px 4px rgba(0,0,0,0.5)" : "none",
+                textShadow: showHoverEffects
+                  ? "0 2px 4px rgba(0,0,0,0.5)"
+                  : "none",
                 letterSpacing: "-0.01em",
               }}
             >
@@ -223,7 +223,7 @@ export default function SongCard({
               {/* Music note icon */}
               <div
                 className={`w-4 h-4 mr-1.5 transition-all duration-700 ease-out ${
-                  isHovering ? "opacity-100" : "opacity-70"
+                  showHoverEffects ? "opacity-100" : "opacity-70"
                 }`}
               >
                 <svg
@@ -235,7 +235,7 @@ export default function SongCard({
                   strokeLinecap="round"
                   strokeLinejoin="round"
                   className={`w-full h-full ${
-                    isHovering ? "text-[#FFCC00]" : "text-white"
+                    showHoverEffects ? "text-[#FFCC00]" : "text-white"
                   }`}
                 >
                   <path d="M9 18V5l12-2v13" />
@@ -244,8 +244,8 @@ export default function SongCard({
                 </svg>
               </div>
               <p
-                className={`text-base transition-all duration-700 ease-out ${
-                  isHovering ? "text-gray-200" : "text-gray-400"
+                className={`text-sm sm:text-base transition-all duration-700 ease-out ${
+                  showHoverEffects ? "text-gray-200" : "text-gray-400"
                 }`}
                 style={{ letterSpacing: "0.01em" }}
               >
@@ -257,15 +257,15 @@ export default function SongCard({
           {/* Bottom controls with enhanced animations */}
           <div
             className={`flex justify-between items-center transition-all duration-700 ease-out ${
-              isHovering
+              showHoverEffects
                 ? "opacity-100 transform translate-y-0"
                 : "opacity-70 transform translate-y-2"
             }`}
           >
             {/* Duration with enhanced design */}
-            <div className="flex items-center text-gray-300 text-sm bg-black/30 px-2 py-1 rounded-full backdrop-blur-sm">
+            <div className="flex items-center text-gray-300 text-xs sm:text-sm bg-black/30 px-2 py-1 rounded-full backdrop-blur-sm">
               <svg
-                className="w-4 h-4 mr-1.5 text-[#FFCC00]"
+                className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-1.5 text-[#FFCC00]"
                 viewBox="0 0 24 24"
                 fill="currentColor"
               >
@@ -276,15 +276,17 @@ export default function SongCard({
             </div>
 
             {/* Action buttons with enhanced animations */}
-            <div className="flex space-x-3">
+            <div className="flex space-x-2 sm:space-x-3">
               {/* Play button */}
               <button
-                className={`bg-[#FFCC00] text-black rounded-full w-10 h-10 flex items-center justify-center transition-all duration-700 ease-out hover:bg-[#FFD700] ${
-                  isHovering ? "opacity-100 scale-100" : "opacity-0 scale-90"
+                className={`bg-[#FFCC00] text-black rounded-full w-8 h-8 sm:w-10 sm:h-10 flex items-center justify-center transition-all duration-700 ease-out hover:bg-[#FFD700] ${
+                  showHoverEffects
+                    ? "opacity-100 scale-100"
+                    : "opacity-0 scale-90"
                 }`}
                 style={{
                   boxShadow: "0 4px 12px rgba(255,204,0,0.3)",
-                  transform: isHovering
+                  transform: showHoverEffects
                     ? "translateY(0) scale(1)"
                     : "translateY(10px) scale(0.9)",
                   transitionDelay: "100ms",
@@ -292,7 +294,7 @@ export default function SongCard({
                 aria-label={`Play ${name}`}
               >
                 <svg
-                  className="w-5 h-5 ml-0.5"
+                  className="w-4 h-4 sm:w-5 sm:h-5 ml-0.5"
                   viewBox="0 0 24 24"
                   fill="currentColor"
                 >
@@ -303,11 +305,13 @@ export default function SongCard({
               {/* Share button */}
               <button
                 onClick={handleShare}
-                className={`text-white hover:text-[#FFCC00] p-2 rounded-full hover:bg-white/10 transition-all duration-700 ease-out ${
-                  isHovering ? "opacity-100 scale-100" : "opacity-0 scale-90"
+                className={`text-white hover:text-[#FFCC00] p-1.5 sm:p-2 rounded-full hover:bg-white/10 transition-all duration-700 ease-out ${
+                  showHoverEffects
+                    ? "opacity-100 scale-100"
+                    : "opacity-0 scale-90"
                 }`}
                 style={{
-                  transform: isHovering
+                  transform: showHoverEffects
                     ? "translateY(0) scale(1)"
                     : "translateY(10px) scale(0.9)",
                   transitionDelay: "150ms",
@@ -315,7 +319,7 @@ export default function SongCard({
                 aria-label={`Share ${name}`}
               >
                 <svg
-                  className="w-5 h-5"
+                  className="w-4 h-4 sm:w-5 sm:h-5"
                   viewBox="0 0 24 24"
                   fill="currentColor"
                 >
@@ -325,26 +329,36 @@ export default function SongCard({
 
               {/* Delete button */}
               <button
-                onClick={handleDeleteClick}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  e.preventDefault();
+                  setShowDeleteModal(true);
+                }}
                 disabled={isDeleting}
-                className={`text-white hover:text-red-400 p-2 rounded-full hover:bg-white/10 transition-all duration-700 ease-out ${
-                  isHovering ? "opacity-100 scale-100" : "opacity-0 scale-90"
+                className={`text-white hover:text-red-400 p-1.5 sm:p-2 rounded-full hover:bg-white/10 transition-all duration-700 ease-out ${
+                  showHoverEffects
+                    ? "opacity-100 scale-100"
+                    : "opacity-0 scale-90"
                 } ${isDeleting ? "opacity-50 cursor-not-allowed" : ""}`}
                 style={{
-                  transform: isHovering
+                  transform: showHoverEffects
                     ? "translateY(0) scale(1)"
                     : "translateY(10px) scale(0.9)",
                   transitionDelay: "200ms",
                 }}
                 aria-label={`Delete ${name}`}
               >
-                <svg
-                  className="w-5 h-5"
-                  viewBox="0 0 24 24"
-                  fill="currentColor"
-                >
-                  <path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z" />
-                </svg>
+                {isDeleting ? (
+                  <div className="w-4 h-4 sm:w-5 sm:h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                ) : (
+                  <svg
+                    className="w-4 h-4 sm:w-5 sm:h-5"
+                    viewBox="0 0 24 24"
+                    fill="currentColor"
+                  >
+                    <path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z" />
+                  </svg>
+                )}
               </button>
             </div>
           </div>

@@ -29,19 +29,19 @@ export default function Header() {
                 Unlimited
               </a>
               <a
-                href="/roster"
+                href="https://musiversal.com/hire-session-musicians"
                 className="text-gray-300 hover:text-white px-3 py-2 text-sm font-medium transition-colors duration-200"
               >
                 Roster
               </a>
               <a
-                href="/orchestras"
+                href="https://musiversal.com/orchestras"
                 className="text-gray-300 hover:text-white px-3 py-2 text-sm font-medium transition-colors duration-200"
               >
                 Orchestras
               </a>
               <a
-                href="/blog"
+                href="https://musiversal.com/blog"
                 className="text-gray-300 hover:text-white px-3 py-2 text-sm font-medium transition-colors duration-200"
               >
                 Blog
@@ -52,13 +52,13 @@ export default function Header() {
           {/* Right side buttons */}
           <div className="hidden md:flex items-center space-x-4">
             <a
-              href="/login"
+              href="https://musiversal.com/"
               className="text-gray-300 hover:text-white px-3 py-2 text-sm font-medium transition-colors duration-200"
             >
               Login
             </a>
             <a
-              href="/waitlist"
+              href="https://musiversal.com/"
               className="bg-[#FFCC00] hover:bg-[#FFD700] text-black font-medium px-4 py-2 rounded-md text-sm transition-colors duration-200"
             >
               JOIN WAITLIST
@@ -124,31 +124,31 @@ export default function Header() {
               Unlimited
             </a>
             <a
-              href="/roster"
+              href="https://musiversal.com/roaster"
               className="text-gray-300 hover:text-white block px-3 py-2 text-base font-medium"
             >
               Roster
             </a>
             <a
-              href="/orchestras"
+              href="https://musiversal.com/orchestras"
               className="text-gray-300 hover:text-white block px-3 py-2 text-base font-medium"
             >
               Orchestras
             </a>
             <a
-              href="/blog"
+              href="https://musiversal.com/blog"
               className="text-gray-300 hover:text-white block px-3 py-2 text-base font-medium"
             >
               Blog
             </a>
             <a
-              href="/login"
+              href="https://musiversal.com/"
               className="text-gray-300 hover:text-white block px-3 py-2 text-base font-medium"
             >
               Login
             </a>
             <a
-              href="/waitlist"
+              href="https://musiversal.com/"
               className="bg-[#FFCC00] hover:bg-[#FFD700] text-black font-medium block px-3 py-2 rounded-md text-base mt-4 mx-2"
             >
               JOIN WAITLIST

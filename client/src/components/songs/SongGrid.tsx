@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useEffect } from "react";
+import { useEffect } from "react";
 import SongCard from "./SongCard";
 
 interface Song {
@@ -21,19 +21,25 @@ export default function SongGrid({
   onDeleteSong,
   isLoading = false,
 }: SongGridProps) {
-  const gridRef = useRef<HTMLDivElement>(null);
-
-  // Add staggered reveal effect to grid items
   useEffect(() => {
-    if (gridRef.current && !isLoading) {
-      const cards = gridRef.current.querySelectorAll(".card-reveal");
-      cards.forEach((card, index) => {
-        // Add a small delay for each card to create a staggered effect
-        const delay = index * 100;
-        (card as HTMLElement).style.transitionDelay = `${delay}ms`;
-      });
-    }
-  }, [isLoading, songs.length]);
+    const style = document.createElement("style");
+    style.textContent = `
+      @keyframes fadeInUp {
+        from {
+          opacity: 0;
+          transform: translateY(24px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+    `;
+    document.head.appendChild(style);
+    return () => {
+      document.head.removeChild(style);
+    };
+  }, []);
 
   if (isLoading) {
     return (
@@ -43,7 +49,7 @@ export default function SongGrid({
             key={index}
             className="bg-[#1f1f1f] rounded-lg overflow-hidden border border-[#333333] animate-pulse aspect-[16/9]"
           >
-            <div className="w-full h-full bg-[#252525]"></div>
+            <div className="w-full h-full bg-[#252525]" />
           </div>
         ))}
       </div>
@@ -75,16 +81,24 @@ export default function SongGrid({
   }
 
   return (
-    <div ref={gridRef} className="grid grid-cols-1 md:grid-cols-2 gap-6">
-      {songs.map((song) => (
-        <SongCard
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      {songs.map((song, index) => (
+        <div
           key={song.id}
-          id={song.id}
-          name={song.name}
-          artist={song.artist}
-          imageUrl={song.imageUrl}
-          onDelete={onDeleteSong}
-        />
+          className="card-reveal"
+          style={{
+            animation: "fadeInUp 0.9s ease-out forwards",
+            animationDelay: `${index * 10}ms`,
+          }}
+        >
+          <SongCard
+            id={song.id}
+            name={song.name}
+            artist={song.artist}
+            imageUrl={song.imageUrl}
+            onDelete={onDeleteSong}
+          />
+        </div>
       ))}
     </div>
   );
