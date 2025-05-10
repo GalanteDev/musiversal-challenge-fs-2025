@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import Header from "./components/layout/Header";
+import Footer from "./components/layout/Footer";
 import SongGrid from "./components/songs/SongGrid";
 import SongUploader from "./components/songs/SongUploader";
 import { getAllSongs, addSong, deleteSong } from "./api/songService";
@@ -113,6 +114,8 @@ function App() {
           </div>
         </div>
       </main>
+
+      <Footer />
     </div>
   );
 }

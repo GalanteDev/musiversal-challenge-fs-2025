@@ -29,6 +29,25 @@ export default function SongCard({
   const cardRef = useRef<HTMLDivElement>(null);
   const imageRef = useRef<HTMLImageElement>(null);
 
+  // Generate random year and duration once when component mounts
+  const randomYear = useRef(Math.floor(Math.random() * 26) + 1990).current; // Random year between 1990-2015
+
+  // Generate random duration between 2 and 5 minutes
+  const generateRandomDuration = () => {
+    const minSeconds = 2 * 60; // 2 minutes in seconds
+    const maxSeconds = 5 * 60; // 5 minutes in seconds
+    const totalSeconds =
+      Math.floor(Math.random() * (maxSeconds - minSeconds + 1)) + minSeconds;
+
+    const minutes = Math.floor(totalSeconds / 60);
+    const seconds = totalSeconds % 60;
+
+    // Format as m:ss
+    return `${minutes}:${seconds.toString().padStart(2, "0")}`;
+  };
+
+  const randomDuration = useRef(generateRandomDuration()).current;
+
   // Handle the "new" animation effect
   useEffect(() => {
     if (isNew) {
@@ -108,9 +127,6 @@ export default function SongCard({
     : imageUrl.startsWith("/")
     ? `http://localhost:4000${imageUrl}`
     : `http://localhost:4000/uploads/${imageUrl}`;
-
-  // Generate a random year between 1990 and 2015
-  const randomYear = Math.floor(Math.random() * 26) + 1990; // Random year between 1990-2015
 
   return (
     <>
@@ -208,20 +224,28 @@ export default function SongCard({
             </h3>
 
             <div className="flex items-center">
-              {/* Heavy metal hand icon */}
+              {/* Music note icon */}
               <div
                 className={`w-4 h-4 mr-1.5 transition-all duration-700 ease-out ${
                   isHovering ? "opacity-100" : "opacity-70"
                 }`}
               >
-                <img
-                  src="/icons/heavy-metal-icon.png"
-                  alt="Rock on"
-                  className="w-full h-full object-contain"
-                  style={{
-                    filter: isHovering ? "brightness(1.2)" : "brightness(1)",
-                  }}
-                />
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  className={`w-full h-full ${
+                    isHovering ? "text-[#FFCC00]" : "text-white"
+                  }`}
+                >
+                  <path d="M9 18V5l12-2v13" />
+                  <circle cx="6" cy="18" r="3" />
+                  <circle cx="18" cy="16" r="3" />
+                </svg>
               </div>
               <p
                 className={`text-base transition-all duration-700 ease-out ${
@@ -252,7 +276,7 @@ export default function SongCard({
                 <path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8z" />
                 <path d="M12.5 7H11v6l5.25 3.15.75-1.23-4.5-2.67z" />
               </svg>
-              3:45
+              {randomDuration}
             </div>
 
             {/* Action buttons with enhanced animations */}

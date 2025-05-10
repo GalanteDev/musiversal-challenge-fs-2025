@@ -6,11 +6,12 @@ export default function Header() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   return (
-    <header className="bg-black text-white border-b border-gray-800">
+    <header className="bg-[#121212] text-white border-b border-[#222222]">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
-          {/* Logo */}
-          <div className="flex items-center">
+          {/* Logo and Navigation */}
+          <div className="flex items-center space-x-8">
+            {/* Logo */}
             <a href="/" className="flex items-center">
               <img
                 src="https://cdn.prod.website-files.com/6398ef8be4937997427ec569/639b5d75d12f2ba12961e1df_Logo%201.webp"
@@ -18,47 +19,47 @@ export default function Header() {
                 className="h-8"
               />
             </a>
-          </div>
 
-          {/* Desktop Navigation */}
-          <nav className="hidden md:flex space-x-8">
-            <a
-              href="/unlimited"
-              className="text-yellow-500 hover:text-yellow-400 px-3 py-2 text-sm font-medium"
-            >
-              Unlimited
-            </a>
-            <a
-              href="/roster"
-              className="text-gray-300 hover:text-white px-3 py-2 text-sm font-medium"
-            >
-              Roster
-            </a>
-            <a
-              href="/orchestras"
-              className="text-gray-300 hover:text-white px-3 py-2 text-sm font-medium"
-            >
-              Orchestras
-            </a>
-            <a
-              href="/blog"
-              className="text-gray-300 hover:text-white px-3 py-2 text-sm font-medium"
-            >
-              Blog
-            </a>
-          </nav>
+            {/* Desktop Navigation */}
+            <nav className="hidden md:flex space-x-8">
+              <a
+                href="/unlimited"
+                className="text-[#FFCC00] hover:text-[#FFD700] px-3 py-2 text-sm font-medium transition-colors duration-200"
+              >
+                Unlimited
+              </a>
+              <a
+                href="/roster"
+                className="text-gray-300 hover:text-white px-3 py-2 text-sm font-medium transition-colors duration-200"
+              >
+                Roster
+              </a>
+              <a
+                href="/orchestras"
+                className="text-gray-300 hover:text-white px-3 py-2 text-sm font-medium transition-colors duration-200"
+              >
+                Orchestras
+              </a>
+              <a
+                href="/blog"
+                className="text-gray-300 hover:text-white px-3 py-2 text-sm font-medium transition-colors duration-200"
+              >
+                Blog
+              </a>
+            </nav>
+          </div>
 
           {/* Right side buttons */}
           <div className="hidden md:flex items-center space-x-4">
             <a
               href="/login"
-              className="text-gray-300 hover:text-white px-3 py-2 text-sm font-medium"
+              className="text-gray-300 hover:text-white px-3 py-2 text-sm font-medium transition-colors duration-200"
             >
               Login
             </a>
             <a
               href="/waitlist"
-              className="bg-yellow-500 hover:bg-yellow-400 text-black font-bold px-5 py-2 rounded text-sm"
+              className="bg-[#FFCC00] hover:bg-[#FFD700] text-black font-medium px-4 py-2 rounded-md text-sm transition-colors duration-200"
             >
               JOIN WAITLIST
             </a>
@@ -115,10 +116,10 @@ export default function Header() {
       {/* Mobile menu, show/hide based on menu state */}
       {isMobileMenuOpen && (
         <div className="md:hidden" id="mobile-menu">
-          <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3">
+          <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3 bg-[#1A1A1A]">
             <a
               href="/unlimited"
-              className="text-yellow-500 hover:text-yellow-400 block px-3 py-2 text-base font-medium"
+              className="text-[#FFCC00] hover:text-[#FFD700] block px-3 py-2 text-base font-medium"
             >
               Unlimited
             </a>
@@ -148,7 +149,7 @@ export default function Header() {
             </a>
             <a
               href="/waitlist"
-              className="bg-yellow-500 hover:bg-yellow-400 text-black font-bold block px-3 py-2 rounded text-base mt-4 mx-2"
+              className="bg-[#FFCC00] hover:bg-[#FFD700] text-black font-medium block px-3 py-2 rounded-md text-base mt-4 mx-2"
             >
               JOIN WAITLIST
             </a>

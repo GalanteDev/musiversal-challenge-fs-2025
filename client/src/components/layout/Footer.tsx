@@ -1,9 +1,9 @@
 import { Facebook, Twitter, Instagram, Linkedin, Youtube } from "lucide-react";
 
-export function Footer() {
+export default function Footer() {
   return (
-    <footer className="bg-black text-white border-t border-gray-800">
-      <div className="container mx-auto py-12 px-4">
+    <footer className="bg-[#121212] text-white border-t border-[#222222]">
+      <div className="max-w-7xl mx-auto py-12 px-4 sm:px-6 lg:px-8">
         <div className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-4">
           {/* Logo and Description */}
           <div className="col-span-1 md:col-span-1">
@@ -21,35 +21,35 @@ export function Footer() {
             <div className="flex space-x-4">
               <a
                 href="#"
-                className="text-gray-400 hover:text-amber-500 transition-colors"
+                className="text-gray-400 hover:text-[#FFCC00] transition-colors"
               >
                 <Facebook size={18} />
                 <span className="sr-only">Facebook</span>
               </a>
               <a
                 href="#"
-                className="text-gray-400 hover:text-amber-500 transition-colors"
+                className="text-gray-400 hover:text-[#FFCC00] transition-colors"
               >
                 <Twitter size={18} />
                 <span className="sr-only">Twitter</span>
               </a>
               <a
                 href="#"
-                className="text-gray-400 hover:text-amber-500 transition-colors"
+                className="text-gray-400 hover:text-[#FFCC00] transition-colors"
               >
                 <Instagram size={18} />
                 <span className="sr-only">Instagram</span>
               </a>
               <a
                 href="#"
-                className="text-gray-400 hover:text-amber-500 transition-colors"
+                className="text-gray-400 hover:text-[#FFCC00] transition-colors"
               >
                 <Linkedin size={18} />
                 <span className="sr-only">LinkedIn</span>
               </a>
               <a
                 href="#"
-                className="text-gray-400 hover:text-amber-500 transition-colors"
+                className="text-gray-400 hover:text-[#FFCC00] transition-colors"
               >
                 <Youtube size={18} />
                 <span className="sr-only">YouTube</span>
@@ -179,7 +179,7 @@ export function Footer() {
           </div>
         </div>
 
-        <div className="border-t border-gray-800 mt-12 pt-8">
+        <div className="border-t border-[#222222] mt-12 pt-8">
           <p className="text-gray-500 text-sm text-center">
             © {new Date().getFullYear()} Musiversal. All rights reserved.
           </p>
