@@ -4,6 +4,8 @@ import path from "path";
 import "dotenv/config";
 import songRoutes from "./routes/song.routes";
 import { preloadProtectedImages } from "./utils/preloadedProtectedImages";
+import swaggerUi from "swagger-ui-express";
+import { swaggerSpec } from "./config/swagger";
 
 const app = express();
 const PORT = process.env.PORT ? parseInt(process.env.PORT, 10) : 4000;
@@ -11,6 +13,7 @@ const PORT = process.env.PORT ? parseInt(process.env.PORT, 10) : 4000;
 app.use(cors());
 app.use(express.json());
 
+app.use("/docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 // 👇 Handle images and protected songs.
 preloadProtectedImages();
 
