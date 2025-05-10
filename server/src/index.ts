@@ -3,9 +3,10 @@ import cors from "cors";
 import path from "path";
 import songRoutes from "./routes/song.routes";
 import { songService } from "./services/song.service";
+import "dotenv/config";
 
 const app = express();
-const PORT = 4000;
+const PORT = process.env.PORT ? parseInt(process.env.PORT, 10) : 4000;
 
 app.use(cors());
 app.use(express.json());
