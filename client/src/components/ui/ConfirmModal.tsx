@@ -1,94 +1,61 @@
-"use client";
-
-import { useEffect, useRef } from "react";
+import { createPortal } from "react-dom";
+import { useEffect, useState } from "react";
 
 interface ConfirmModalProps {
   isOpen: boolean;
-  onClose: () => void;
-  onConfirm: () => void;
   title: string;
   message: string;
-  confirmText?: string;
-  cancelText?: string;
+  confirmText: string;
+  cancelText: string;
+  onConfirm: () => void;
+  onClose: () => void;
   isDestructive?: boolean;
 }
 
 export default function ConfirmModal({
   isOpen,
-  onClose,
-  onConfirm,
   title,
   message,
-  confirmText = "Confirm",
-  cancelText = "Cancel",
+  confirmText,
+  cancelText,
+  onConfirm,
+  onClose,
   isDestructive = false,
 }: ConfirmModalProps) {
-  const modalRef = useRef<HTMLDivElement>(null);
+  const [mounted, setMounted] = useState(false);
 
-  // Handle escape key press
   useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === "Escape" && isOpen) {
-        onClose();
-      }
-    };
+    setMounted(true);
+    return () => setMounted(false);
+  }, []);
 
-    window.addEventListener("keydown", handleKeyDown);
-    return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [isOpen, onClose]);
+  if (!isOpen || !mounted) return null;
 
-  // Handle click outside
-  useEffect(() => {
-    const handleClickOutside = (e: MouseEvent) => {
-      if (
-        modalRef.current &&
-        !modalRef.current.contains(e.target as Node) &&
-        isOpen
-      ) {
-        onClose();
-      }
-    };
-
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, [isOpen, onClose]);
-
-  if (!isOpen) return null;
-
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/30 backdrop-blur-[2px]">
-      <div
-        ref={modalRef}
-        className="bg-[#1f1f1f] border border-[#333333] rounded-lg w-full max-w-md shadow-xl"
-      >
-        <div className="p-6">
-          <h3 className="text-xl font-medium text-white mb-2">{title}</h3>
-          <p className="text-[#a0a0a0] mb-6">{message}</p>
-
-          <div className="flex justify-end space-x-3">
-            <button
-              onClick={onClose}
-              className="px-4 py-2 rounded-md text-[#a0a0a0] hover:text-white hover:bg-[#333333] transition-colors duration-200"
-            >
-              {cancelText}
-            </button>
-
-            <button
-              onClick={() => {
-                onConfirm();
-                onClose();
-              }}
-              className={`px-4 py-2 rounded-md transition-colors duration-200 ${
-                isDestructive
-                  ? "bg-red-600 hover:bg-red-700 text-white"
-                  : "bg-[#FFCC00] hover:bg-[#FFD700] text-black"
-              }`}
-            >
-              {confirmText}
-            </button>
-          </div>
+  return createPortal(
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
+      <div className="bg-[#1f1f1f] border border-[#333] rounded-xl p-6 max-w-sm w-full shadow-lg">
+        <h2 className="text-white text-xl font-semibold mb-3">{title}</h2>
+        <p className="text-gray-300 text-sm mb-6">{message}</p>
+        <div className="flex justify-end gap-3">
+          <button
+            onClick={onClose}
+            className="px-4 py-2 text-sm text-gray-300 hover:text-white hover:bg-white/10 rounded-md transition"
+          >
+            {cancelText}
+          </button>
+          <button
+            onClick={onConfirm}
+            className={`px-4 py-2 text-sm rounded-md font-medium transition ${
+              isDestructive
+                ? "bg-red-600 hover:bg-red-700 text-white"
+                : "bg-[#FFCC00] hover:bg-[#FFD700] text-black"
+            }`}
+          >
+            {confirmText}
+          </button>
         </div>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 }
