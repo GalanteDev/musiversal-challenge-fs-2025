@@ -2,39 +2,43 @@ import { Request, Response, NextFunction } from "express";
 import { upload } from "./upload.middleware";
 import path from "path";
 import fs from "fs";
-import { validateSongInput } from "../utils/validateSongInput";
-import { sendError } from "../utils/sendError";
 
 export const uploadAndValidate = (
   req: Request,
   res: Response,
   next: NextFunction
-): void => {
+) => {
   upload.single("image")(req, res, (err) => {
     if (err) {
-      const isUnexpectedField = err.message.includes("Unexpected field");
-      const message = isUnexpectedField
-        ? "Missing 'image' field in form-data."
-        : err.message;
+      const errorMessage =
+        err.code === "LIMIT_FILE_SIZE"
+          ? "Image is too large. Max size is 2MB."
+          : err.message || "File upload failed.";
 
-      return sendError(res, 400, [message]);
+      return res.status(400).json({ error: errorMessage });
     }
 
-    const file = req.file ? { filename: req.file.filename } : null;
+    const { name, artist } = req.body;
 
-    const errors = validateSongInput({
-      name: req.body?.name,
-      artist: req.body?.artist,
-      file,
-    });
+    const isInvalid =
+      !name ||
+      typeof name !== "string" ||
+      name.trim().length === 0 ||
+      !artist ||
+      typeof artist !== "string" ||
+      artist.trim().length === 0;
 
-    if (errors.length > 0) {
-      if (file) {
-        const filePath = path.join(__dirname, "../../uploads", file.filename);
+    if (isInvalid) {
+      if (req.file) {
+        const filePath = path.join(
+          __dirname,
+          "../../uploads",
+          req.file.filename
+        );
         if (fs.existsSync(filePath)) fs.unlinkSync(filePath);
       }
 
-      return sendError(res, 400, errors);
+      return res.status(400).json({ error: "Name and artist are required." });
     }
 
     next();
