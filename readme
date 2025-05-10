@@ -1,8 +1,8 @@
-<div align="center">
-  <img src="https://cdn.prod.website-files.com/6398ef8be4937997427ec569/639b5d75d12f2ba12961e1df_Logo%201.webp" width="220" alt="Musiversal Logo" />
-  <h1 style="color:#FFCC00;">Musiversal Songs Library</h1>
-  <p>Fullstack challenge project – 2025 edition</p>
-</div>
+![Musiversal Logo](https://cdn.prod.website-files.com/6398ef8be4937997427ec569/639b5d75d12f2ba12961e1df_Logo%201.webp)
+
+# 🎵 Musiversal Songs Library
+
+**Fullstack Challenge Project – 2025 edition**
 
 ---
 
@@ -10,121 +10,123 @@
 
 This is a fullstack application built for the [Musiversal Fullstack Challenge 2025](https://github.com/musiversal/fullstack-challenge-2025/tree/master). It allows users to manage a music library with support for uploading cover images, editing, and deleting songs.
 
+---
+
 ## 🌐 Live Version
 
-> 🔗 [**Deployed app (Vercel)**](https://musiversal-challenge-fs-2025.vercel.app)
-
-## 🛠 Technologies Used
-
-### Backend
-
-- Node.js + Express
-- TypeScript
-- Multer (for file uploads)
-- Swagger (for API docs)
-- Jest (unit testing)
-
-### Frontend
-
-- Vite + React
-- TailwindCSS
-- Lucide Icons
-- TypeScript
-
-### Deployment
-
-- Railway (for backend and frontend hosting)
+🔗 **Deployed app (Railway):** https://musiversal-challenge-fs-2025-production.up.railway.app
 
 ---
 
-## 🧪 Running the App Locally
+## 🛠️ Technologies Used
 
-### 1. Clone the repo
+### Backend
+- Node.js
+- Express.js
+- TypeScript
+- Multer (file uploads)
+- Swagger (API documentation)
+- Jest (unit testing)
 
-```bash
+### Frontend
+- React
+- Vite
+- Tailwind CSS
+- Lucide Icons
+
+---
+
+## 📦 Installation & Setup
+
+1. **Clone the repository:**
+
+   ```bash
 git clone https://github.com/your-username/musiversal-songs-library.git
 cd musiversal-songs-library
 ```
 
-### 2. Install dependencies
+2. **Install dependencies:**
 
-- Backend
-
-```bash
+   ```bash
 cd server
 npm install
-```
-
-- Frontend
-
-```bash
-cd client
+cd ../client
 npm install
 ```
 
----
+3. **Run the backend:**
 
-### 3. Run the development servers
-
-- Backend
-
-```bash
+   ```bash
 cd server
 npm run dev
 ```
 
-- Frontend
+4. **Run the frontend:**
 
-```bash
+   ```bash
 cd client
 npm run dev
 ```
 
-> App will be available at: `http://localhost:5173`
-
 ---
 
-### 4. Run tests
+## 🧪 Running Tests
+
+Execute backend unit tests:
 
 ```bash
 cd server
-npm test
+npm run test
 ```
 
 ---
 
-## 📄 API Documentation
+## 📘 API Documentation
 
-You can access Swagger docs at:  
+After starting the backend, Swagger UI is available at:
+
 [http://localhost:4000/docs](http://localhost:4000/docs)
 
 ---
 
-## 📦 Image Seeding (Development Convenience)
+## 🖼️ Protected Images & Auto-Seeding
 
-On server start, the app **preloads 3 seed songs**:
+To enhance the developer experience and provide immediate visual feedback, the server preloads **3 protected songs** on every startup:
 
-- Hammer Smashed Face – Cannibal Corpse
-- Roots Bloody Roots – Sepultura
-- Raining Blood – Slayer
+- **Hammer Smashed Face** – Cannibal Corpse (`canibalcorpse.png`)
+- **Roots Bloody Roots** – Sepultura (`sepultura.png`)
+- **Raining Blood** – Slayer (`slayer.png`)
 
-These songs come with protected cover images located in the `/static-images` folder.
+These cover images are copied from the `static-images/` folder into `uploads/` **only if they are missing**. Deleting them from `uploads/` and restarting the server will restore them (as long as they exist in `static-images/`).
 
-**Important notes:**
-
-- If any of these images are missing from `static-images`, the preload will skip them.
-- If you delete these songs and restart the server, they will **reappear** with their images — unless the images have been deleted.
-- This was implemented to ease development and give a visual idea of how the library looks when populated.
-
-> ⚠️ If you clone this repo, **make sure to include the `/static-images` folder with the `.png` files** for proper functionality.
+> ⚠️ Make sure to include the `/server/static-images` folder with these files when cloning the repo.
 
 ---
 
-## 🤝 Contact
+## 📋 Environment Variables
 
-If you have any questions or issues:
-📧 **galante.julian@gmail.com**
+### Backend (`server/.env`)
+
+```env
+PORT=4000
+```
+
+### Frontend (`client/.env`)
+
+```env
+VITE_API_URL=http://localhost:4000
+```
+
+Adjust `VITE_API_URL` when deploying the frontend.
 
 ---
 
-Made with 💛 for Musiversal
+## 🤝 Contact & Support
+
+If you have any questions, feedback, or run into issues, feel free to reach out:
+
+✉️ **galante.julian@gmail.com**
+
+---
+
+Made with ❤️ by Julian Galante for Musiversal. Keep creating, keep collaborating! With love, from the code 🎶
