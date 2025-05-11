@@ -62,10 +62,51 @@
           <li>Backend: <code>cd server && npm run dev</code></li>
           <li>Frontend: <code>cd client && npm run dev</code></li>
         </ul>
-        Open <code>http://localhost:3000</code>
+        Open <code>http://localhost:4000</code>
       </li>
     </ol>
   </section>
+
+  <section style="background: #fff; padding: 20px; border-radius: 6px;
+                  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+                  margin-bottom: 20px;">
+    <h2 style="margin-top: 0; color: #FFAA00;">🔒 Front &amp; Back Validations</h2>
+    <p style="font-size: 1.1em; line-height: 1.6;">
+      All inputs are validated both on the client side and the server side.  
+      You can test these by:
+    </p>
+    <ul style="font-size: 1.1em; line-height: 1.6; margin-left: 1.2em;">
+      <li>Uploading files with unsupported formats or sizes.</li>
+      <li>Submitting the form with missing or invalid fields.</li>
+    </ul>
+    <p style="font-size: 1.1em; line-height: 1.6;">
+      Any validation errors will be displayed directly in the form, so you can see exactly what went wrong.
+    </p>
+  </section>
+
+  <section style="background: #fff; padding: 20px; border-radius: 6px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); margin-top: 20px;">
+    <h2 style="margin-top: 0; color: #FFAA00;">📂 Postman Collection</h2>
+    <p style="font-size: 1.1em; line-height: 1.6;">
+      To easily test the API, we’ve included a Postman collection at <code>assets/song-api.postman_collection.json</code>.  
+      You can import it into Postman or Insomnia by following these steps:
+    </p>
+    <ol style="line-height: 1.6;">
+      <li>Open <strong>Postman</strong> and click on <code>Import</code> (top left).</li>
+      <li>Select the <code>File</code> tab, then drag &amp; drop or browse to <code>assets/song-api.postman_collection.json</code> in your project.</li>
+      <li>You will see three preconfigured requests:
+        <ul>
+          <li><code>Get All Songs</code> (GET <code>/songs</code>)</li>
+          <li><code>Create Song</code> (POST <code>/songs</code>)</li>
+          <li><code>Delete Song</code> (DELETE <code>/songs/:id</code>)</li>
+        </ul>
+      </li>
+      <li>Make sure to set the <code>API_URL</code> environment variable in the collection to your server URL (e.g. <code>http://localhost:4000</code> or your production endpoint).</li>
+      <li>That’s it! You can now send requests and view the API responses.</li>
+    </ol>
+  </section>
+</div>
+
+...
 
   <section style="background: #fff; padding: 20px; border-radius: 6px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); margin-bottom: 20px;">
     <h2 style="margin-top: 0; color: #FFAA00;">🧪 Running Tests</h2>
