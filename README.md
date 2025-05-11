@@ -31,6 +31,7 @@ Musiversal Songs Library is a fullstack application (frontend + backend) enablin
 - Multer (file uploads)
 - Swagger (API documentation)
 - Jest (unit testing)
+- SuperTest (integration testing)
 
 **Frontend**
 
