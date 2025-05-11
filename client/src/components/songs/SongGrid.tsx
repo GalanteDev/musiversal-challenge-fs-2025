@@ -10,7 +10,7 @@ interface Song {
 
 interface SongGridProps {
   songs: Song[];
-  onDeleteSong: (id: string) => void;
+  onDeleteSong: (id: string) => Promise<void>;
   isLoading?: boolean;
 }
 
