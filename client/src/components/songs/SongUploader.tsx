@@ -4,6 +4,7 @@ import { useRef, useState, useEffect } from "react";
 import { useForm, FormProvider } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
+import Spinner from "../ui/Spinner";
 
 interface SongUploaderProps {
   onAddSong: (formData: FormData) => Promise<boolean>;
@@ -315,6 +316,7 @@ export default function SongUploader({ onAddSong }: SongUploaderProps) {
           }`}
         >
           {isSubmitting ? "Adding Song..." : "Add Song"}
+          {isSubmitting && <Spinner size={20} />}
         </button>
       </form>
     </FormProvider>

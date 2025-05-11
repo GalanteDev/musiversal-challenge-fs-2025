@@ -66,6 +66,7 @@ export default function SongCard(props: SongCardProps) {
           confirmText="Delete"
           cancelText="Cancel"
           isDestructive={true}
+          isLoading={isDeleting}
         />
       )}
     </>

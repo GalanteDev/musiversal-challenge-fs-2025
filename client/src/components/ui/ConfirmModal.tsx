@@ -1,5 +1,6 @@
 import { createPortal } from "react-dom";
 import { useEffect, useState } from "react";
+import Spinner from "./Spinner";
 
 interface ConfirmModalProps {
   isOpen: boolean;
@@ -10,6 +11,7 @@ interface ConfirmModalProps {
   onConfirm: () => void;
   onClose: () => void;
   isDestructive?: boolean;
+  isLoading: boolean;
 }
 
 export default function ConfirmModal({
@@ -21,6 +23,7 @@ export default function ConfirmModal({
   onConfirm,
   onClose,
   isDestructive = false,
+  isLoading = false,
 }: ConfirmModalProps) {
   const [mounted, setMounted] = useState(false);
 
@@ -52,6 +55,7 @@ export default function ConfirmModal({
             }`}
           >
             {confirmText}
+            {isLoading && <Spinner className="inline-block ml-2" size={16} />}
           </button>
         </div>
       </div>
