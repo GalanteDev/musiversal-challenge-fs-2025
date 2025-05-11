@@ -4,3 +4,9 @@ export type Song = {
   artist: string;
   imageUrl: string;
 };
+
+export interface ProtectedSong {
+  name: string;
+  artist: string;
+  file: string;
+}

@@ -1,14 +1,19 @@
 import { Song } from "../types/song.types";
 import { v4 as uuidv4 } from "uuid";
+import { HttpError } from "../middleware/error.middleware";
+import { PROTECTED_FILES, UPLOAD_DIR } from "../config";
+import path from "path";
+import fs from "fs/promises";
 
 export class SongService {
   private songs: Song[] = [];
+  private protectedFiles = PROTECTED_FILES;
 
-  getAll(): Song[] {
+  async getAll(): Promise<Song[]> {
     return this.songs;
   }
 
-  create(name: string, artist: string, filename: string): Song {
+  async create(name: string, artist: string, filename: string): Promise<Song> {
     const normalizedName = name.trim().toLowerCase();
     const normalizedArtist = artist.trim().toLowerCase();
 
@@ -19,7 +24,9 @@ export class SongService {
     );
 
     if (duplicate) {
-      throw new Error("This song by this artist already exists.");
+      throw new HttpError(400, [
+        "Another song with this name and artist already exists.",
+      ]);
     }
 
     const newSong: Song = {
@@ -33,18 +40,12 @@ export class SongService {
     return newSong;
   }
 
-  delete(id: string): Song | null {
-    const index = this.songs.findIndex((s) => s.id === id);
-    if (index === -1) return null;
-    const [deleted] = this.songs.splice(index, 1);
-    return deleted;
-  }
-
-  update(id: string, name: string, artist: string): Song | null {
+  async update(id: string, name: string, artist: string): Promise<Song> {
     const song = this.songs.find((s) => s.id === id);
-    if (!song) return null;
+    if (!song) {
+      throw new HttpError(404, ["Song not found."]);
+    }
 
-    // Check for duplicate name + artist in other songs
     const duplicate = this.songs.some(
       (s) =>
         s.id !== id &&
@@ -53,12 +54,28 @@ export class SongService {
     );
 
     if (duplicate) {
-      throw new Error("Another song with this name and artist already exists.");
+      throw new HttpError(400, [
+        "Another song with this name and artist already exists.",
+      ]);
     }
 
     song.name = name;
     song.artist = artist;
     return song;
+  }
+
+  async delete(id: string): Promise<Song> {
+    const index = this.songs.findIndex((s) => s.id === id);
+    if (index === -1) {
+      throw new HttpError(404, ["Song not found."]);
+    }
+    const [deleted] = this.songs.splice(index, 1);
+
+    const filename = path.basename(deleted.imageUrl);
+    const filePath = path.join(UPLOAD_DIR, filename);
+    await fs.unlink(filePath).catch(() => {});
+
+    return deleted;
   }
 }
 
