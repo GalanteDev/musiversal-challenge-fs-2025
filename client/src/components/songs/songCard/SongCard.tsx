@@ -11,7 +11,7 @@ interface SongCardProps {
   name: string;
   artist: string;
   imageUrl: string;
-  onDelete: (id: string) => void;
+  onDelete: (id: string) => Promise<void>;
 }
 
 export default function SongCard(props: SongCardProps) {
@@ -26,7 +26,7 @@ export default function SongCard(props: SongCardProps) {
   const handleDelete = async () => {
     setIsDeleting(true);
     try {
-      props.onDelete(props.id);
+      await props.onDelete(props.id);
     } finally {
       setIsDeleting(false);
       setShowDeleteModal(false);
