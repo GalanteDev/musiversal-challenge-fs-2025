@@ -67,6 +67,28 @@
     </ol>
   </section>
 
+  <!-- 🛠️ Environment Variables -->
+  <section style="background: #fff; padding: 20px; border-radius: 6px;
+                  box-shadow: 0 2px 4px rgba(0,0,0,0.05); margin-bottom: 20px;">
+    <h2 style="margin-top: 0; color: #FFAA00;">🛠️ Environment Variables</h2>
+    <p style="font-size: 1.1em; line-height: 1.6;">
+      <strong>Note:</strong>  
+      - <em>Server</em> (backend) uses sensible defaults (port 4000, <code>./uploads</code>) in local development, so you don’t need a <code>server/.env</code> locally.  
+      - <em>Client</em> (frontend) <strong>does</strong> require a <code>client/.env</code> file before you start it.
+    </p>
+    <ul style="font-size: 1.1em; line-height: 1.6;">
+      <li>
+        <strong>Client</strong> (<code>client/.env</code>):
+        <pre style="background:#f0f0f0; padding:8px; display:inline-block;">
+VITE_API_URL=http://localhost:4000
+        </pre>
+      </li>
+    </ul>
+    <p style="font-size: 1.1em; line-height: 1.6;">
+      Once this file exists, run <code>npm run dev</code> in the <code>client</code> folder and the React app will pick up your API URL.
+    </p>
+  </section>
+
   <section style="background: #fff; padding: 20px; border-radius: 6px;
                   box-shadow: 0 2px 4px rgba(0,0,0,0.05);
                   margin-bottom: 20px;">
