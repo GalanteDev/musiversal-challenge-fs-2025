@@ -1,5 +1,5 @@
 "use client";
-import SongCard from "./SongCard";
+import SongCard from "./songCard/SongCard";
 
 interface Song {
   id: string;

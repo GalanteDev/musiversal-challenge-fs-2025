@@ -1,28 +1,12 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import Header from "./components/layout/Header";
-import Footer from "./components/layout/Footer";
-import SongGrid from "./components/songs/SongGrid";
-import SongUploader from "./components/songs/SongUploader";
-import { getAllSongs, addSong, deleteSong } from "./api/songService";
-
-interface Song {
-  id: string;
-  name: string;
-  artist: string;
-  imageUrl: string;
-}
-
-// Definir la interfaz para los errores de la API
-interface ApiError extends Error {
-  response?: {
-    data?: {
-      status?: string;
-      errors?: string[];
-    };
-  };
-}
+import Header from "@/components/layout/Header";
+import Footer from "@/components/layout/Footer";
+import SongGrid from "@/components/songs/SongGrid";
+import SongUploader from "@/components/songs/SongUploader";
+import { getAllSongs, addSong, deleteSong } from "@/api/songService";
+import type { ApiError, Song } from "./types";
 
 function App() {
   const [songs, setSongs] = useState<Song[]>([]);
@@ -68,13 +52,12 @@ function App() {
     } catch (error: unknown) {
       console.error("Error in handleAddSong:", error);
 
-      // Propagar el error con su mensaje para que el componente SongUploader pueda mostrarlo
       if (error instanceof Error) {
         const apiError = error as ApiError;
         if (apiError.response?.data?.errors) {
-          throw apiError; // Propagar el error con los mensajes del backend
+          throw apiError;
         }
-        throw error; // Propagar el error original
+        throw error;
       }
 
       throw new Error("Failed to add song");
