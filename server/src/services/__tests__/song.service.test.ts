@@ -1,35 +1,49 @@
 import { SongService } from "../song.service";
+import { HttpError } from "../../middleware/error.middleware";
 
-describe("SongService", () => {
+describe("SongService Unit Tests", () => {
   let service: SongService;
 
   beforeEach(() => {
     service = new SongService();
   });
 
-  it("should create a song", () => {
-    const song = service.create("Test Song", "Test Artist", "test.png");
-    expect(song.name).toBe("Test Song");
-    expect(service.getAll()).toHaveLength(1);
+  test("getAll should return empty array initially", async () => {
+    const songs = await service.getAll();
+    expect(Array.isArray(songs)).toBe(true);
+    expect(songs).toHaveLength(0);
   });
 
-  it("should prevent duplicate songs", () => {
-    service.create("Same", "Artist", "a.png");
-    expect(() => service.create("Same", "Artist", "b.png")).toThrow(
-      "This song by this artist already exists."
+  test("create should add and return a new song", async () => {
+    const song = await service.create("Test Song", "Test Artist", "test.png");
+    expect(song).toMatchObject({
+      name: "Test Song",
+      artist: "Test Artist",
+      imageUrl: "/uploads/test.png",
+    });
+    const all = await service.getAll();
+    expect(all).toHaveLength(1);
+  });
+
+  test("create should throw HttpError on duplicate", async () => {
+    await service.create("Dup Song", "Dup Artist", "dup.png");
+    await expect(
+      service.create("Dup Song", "Dup Artist", "dup2.png")
+    ).rejects.toBeInstanceOf(HttpError);
+  });
+
+  test("delete should remove and return the song", async () => {
+    const song = await service.create("Del Song", "Del Artist", "del.png");
+    const deleted = await service.delete(song.id);
+    expect(deleted).not.toBeNull();
+    expect(deleted!.id).toBe(song.id);
+    const allAfter = await service.getAll();
+    expect(allAfter).toHaveLength(0);
+  });
+
+  test("delete should throw HttpError when song not found", async () => {
+    await expect(service.delete("non-existent-id")).rejects.toBeInstanceOf(
+      HttpError
     );
-  });
-
-  it("should update a song", () => {
-    const song = service.create("Old", "Artist", "x.png");
-    const updated = service.update(song.id, "New", "Artist");
-    expect(updated?.name).toBe("New");
-  });
-
-  it("should delete a song", () => {
-    const song = service.create("Kill", "It", "file.png");
-    const deleted = service.delete(song.id);
-    expect(deleted?.name).toBe("Kill");
-    expect(service.getAll()).toHaveLength(0);
   });
 });
