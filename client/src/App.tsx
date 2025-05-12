@@ -5,33 +5,17 @@ import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
 import SongGrid from "@/components/songs/SongGrid";
 import SongUploader from "@/components/songs/SongUploader";
-import { getAllSongs, addSong, deleteSong } from "@/api/songService";
+import { addSong, deleteSong } from "@/api/songService";
 import type { ApiError, Song } from "./types";
+import { fetchSongs } from "./lib/fetchSongs";
 
 function App() {
   const [songs, setSongs] = useState<Song[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  // Fetch songs from API
   useEffect(() => {
-    const fetchSongs = async () => {
-      try {
-        setLoading(true);
-        const data = await getAllSongs();
-        console.log("Fetched songs:", data);
-        setSongs(data);
-      } catch (err) {
-        setError(
-          err instanceof Error ? err.message : "An unknown error occurred"
-        );
-        console.error(err);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchSongs();
+    fetchSongs(setSongs, setLoading, setError);
   }, []);
 
   const handleDeleteSong = async (id: string) => {
