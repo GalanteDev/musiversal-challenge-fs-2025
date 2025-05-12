@@ -11,6 +11,7 @@ interface SongUploaderProps {
 }
 
 const MAX_IMAGE_SIZE = 2 * 1024 * 1024; // 2MB
+const ACCEPTED_IMAGE_TYPES = ["image/jpeg", "image/jpg", "image/png"];
 
 const songSchema = z.object({
   name: z.string().min(1, "Song name is required").max(100),
@@ -20,6 +21,9 @@ const songSchema = z.object({
     .refine((files) => files?.length === 1, "Cover image is required")
     .refine((files) => files?.[0]?.size <= MAX_IMAGE_SIZE, {
       message: "Image is too large. Max size is 2MB.",
+    })
+    .refine((files) => ACCEPTED_IMAGE_TYPES.includes(files?.[0]?.type), {
+      message: "Invalid image type. Only JPG, PNG, and WebP are allowed.",
     }),
 });
 
@@ -295,7 +299,7 @@ export default function SongUploader({ onAddSong }: SongUploaderProps) {
               >
                 {isDragging
                   ? "Drop your image here"
-                  : "PNG, JPG, GIF up to 2MB"}
+                  : "PNG, JPG, JPEG up to 2MB"}
               </p>
             </div>
           </div>
