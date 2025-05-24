@@ -11,6 +11,7 @@ import Footer from "../layout/Footer";
 import Header from "../layout/Header";
 import SongGrid from "./SongGrid";
 import SongUploader from "./SongUploader";
+import { useState } from "react";
 
 interface DeleteSongResponse {
   status: string;
@@ -19,6 +20,10 @@ interface DeleteSongResponse {
 
 export default function SongsApp() {
   const queryClient = useQueryClient();
+
+  const [deletingSongIds, setDeletingSongIds] = useState<Set<string>>(
+    new Set()
+  );
 
   const {
     data: songs = [],
@@ -66,11 +71,18 @@ export default function SongsApp() {
   };
 
   const handleDeleteSong = async (id: string) => {
+    setDeletingSongIds((prev) => new Set(prev).add(id)); // marca como borrando
     try {
       await deleteSongMutation.mutateAsync(id);
     } catch (error) {
       alert("Failed to delete song");
       console.error(error);
+    } finally {
+      setDeletingSongIds((prev) => {
+        const newSet = new Set(prev);
+        newSet.delete(id);
+        return newSet;
+      });
     }
   };
 
@@ -95,6 +107,7 @@ export default function SongsApp() {
             {/* Song Grid - Takes more space on larger screens */}
             <div className="w-full lg:w-2/3 order-2 lg:order-1">
               <SongGrid
+                deletingSongIds={deletingSongIds}
                 songs={songs}
                 onDeleteSong={handleDeleteSong}
                 isLoading={isLoading || deleteSongMutation.isPending}

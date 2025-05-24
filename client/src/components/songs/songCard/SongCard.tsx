@@ -12,23 +12,21 @@ interface SongCardProps {
   artist: string;
   imageUrl: string;
   onDelete: (id: string) => Promise<void>;
+  isDeleting: boolean; // viene del padre
 }
 
 export default function SongCard(props: SongCardProps) {
   const [isHovering, setIsHovering] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
-  const [isDeleting, setIsDeleting] = useState(false);
   const cardRef = useRef<HTMLDivElement>(null);
 
   const isTouchDevice = useIsTouchDevice();
   const showHoverEffects = isTouchDevice || isHovering;
 
   const handleDelete = async () => {
-    setIsDeleting(true);
     try {
       await props.onDelete(props.id);
     } finally {
-      setIsDeleting(false);
       setShowDeleteModal(false);
     }
   };
@@ -51,7 +49,7 @@ export default function SongCard(props: SongCardProps) {
         <SongCardContent
           {...props}
           showHoverEffects={showHoverEffects}
-          isDeleting={isDeleting}
+          isDeleting={props.isDeleting} // usa prop
           onDeleteClick={() => setShowDeleteModal(true)}
         />
       </div>
@@ -66,7 +64,7 @@ export default function SongCard(props: SongCardProps) {
           confirmText="Delete"
           cancelText="Cancel"
           isDestructive={true}
-          isLoading={isDeleting}
+          isLoading={props.isDeleting}
         />
       )}
     </>

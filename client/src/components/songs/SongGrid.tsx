@@ -12,12 +12,14 @@ interface SongGridProps {
   songs: Song[];
   onDeleteSong: (id: string) => Promise<void>;
   isLoading?: boolean;
+  deletingSongIds?: Set<string>;
 }
 
 export default function SongGrid({
   songs,
   onDeleteSong,
   isLoading = false,
+  deletingSongIds = new Set(),
 }: SongGridProps) {
   if (isLoading) {
     return (
@@ -72,6 +74,7 @@ export default function SongGrid({
             artist={song.artist}
             imageUrl={song.imageUrl}
             onDelete={onDeleteSong}
+            isDeleting={deletingSongIds.has(song.id)}
           />
         </div>
       ))}
