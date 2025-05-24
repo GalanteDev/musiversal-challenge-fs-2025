@@ -1,6 +1,5 @@
 import path from "path";
 import dotenv from "dotenv";
-import { ProtectedSong } from "@/types/song.types";
 
 dotenv.config();
 
@@ -18,18 +17,6 @@ export const ALLOWED_IMAGE_TYPES = process.env.ALLOWED_IMAGE_TYPES
   ? process.env.ALLOWED_IMAGE_TYPES.split(",")
   : ["image/jpeg", "image/png", "image/gif"];
 
-export const PROTECTED_FILES = [
-  "canibalcorpse.png",
-  "sepultura.png",
-  "slayer.png",
-];
-
-export const PROTECTED_SONGS: ProtectedSong[] = [
-  {
-    name: "Hammer Smashed Face",
-    artist: "Cannibal Corpse",
-    file: "canibalcorpse.png",
-  },
-  { name: "Roots Bloody Roots", artist: "Sepultura", file: "sepultura.png" },
-  { name: "Raining Blood", artist: "Slayer", file: "slayer.png" },
-];
+export const SUPABASE_URL = process.env.SUPABASE_URL!;
+export const SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY!;
+export const SUPABASE_BUCKET = process.env.SUPABASE_BUCKET!;

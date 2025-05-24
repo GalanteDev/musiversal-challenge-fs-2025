@@ -2,6 +2,15 @@
 import { Request, Response, NextFunction } from "express";
 import { songService } from "../services/song.service";
 import { HttpError } from "../middleware/error.middleware";
+import { AuthRequest } from "@/middleware/auth.middleware";
+import { createClient } from "@supabase/supabase-js";
+import { v4 as uuidv4 } from "uuid";
+import { getExtensionFromMimeType } from "../helpers";
+
+const supabase = createClient(
+  process.env.SUPABASE_URL!,
+  process.env.SUPABASE_SERVICE_ROLE_KEY!
+);
 
 /**
  * @swagger
@@ -81,15 +90,16 @@ export const getAllSongs = async (
  *               $ref: '#/components/schemas/ErrorResponse'
  */
 export const createSong = async (
-  req: Request,
+  req: AuthRequest,
   res: Response,
   next: NextFunction
 ): Promise<void> => {
-  const { name, artist } = req.body;
-  const file = req.file!;
+  const { name, artist, imageUrl } = req.body;
+
+  const userId = req.user!.id;
 
   try {
-    const newSong = await songService.create(name, artist, file.filename);
+    const newSong = await songService.create(name, artist, imageUrl, userId);
     res.status(201).json(newSong);
   } catch (err) {
     next(err);
@@ -149,10 +159,10 @@ export const updateSong = async (
   next: NextFunction
 ): Promise<void> => {
   const { id } = req.params;
-  const { name, artist } = req.body;
+  const { name, artist, imageUrl } = req.body;
 
   try {
-    const updated = await songService.update(id, name, artist);
+    const updated = await songService.update(id, name, artist, imageUrl);
     if (!updated) {
       throw new HttpError(404, ["Song not found."]);
     }
@@ -202,6 +212,42 @@ export const deleteSong = async (
       throw new HttpError(404, ["Song not found."]);
     }
     res.json({ status: "success", message: "Song deleted." });
+  } catch (err) {
+    next(err);
+  }
+};
+
+export const getSignedUploadUrl = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+): Promise<void> => {
+  try {
+    const { fileType } = req.body;
+
+    if (!fileType || !fileType.startsWith("image/")) {
+      res.status(400).json({ error: "Invalid file type." });
+      return;
+    }
+
+    const extension = getExtensionFromMimeType(fileType);
+    if (!extension) {
+      res.status(400).json({ error: "Unsupported file type." });
+      return;
+    }
+
+    const fileName = `${uuidv4()}.${extension}`;
+    const { data, error } = await supabase.storage
+      .from("songs")
+      .createSignedUploadUrl(fileName);
+
+    if (error) throw error;
+
+    res.status(200).json({
+      fileName,
+      uploadUrl: data.signedUrl,
+      publicUrl: `${process.env.SUPABASE_URL}/storage/v1/object/public/songs/${fileName}`,
+    });
   } catch (err) {
     next(err);
   }

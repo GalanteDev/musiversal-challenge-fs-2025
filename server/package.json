@@ -8,16 +8,21 @@
     "dev": "npm run lint && ts-node-dev src/index.ts",
     "test": "jest",
     "start": "ts-node src/index.ts",
-    "build": "echo 'no build needed'"
+    "build": "echo 'no build needed",
+    "prisma:seed": "ts-node prisma/seed.ts"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "type": "commonjs",
   "dependencies": {
+    "@prisma/client": "^6.8.2",
+    "@supabase/supabase-js": "^2.49.8",
+    "bcrypt": "^6.0.0",
     "cors": "^2.8.5",
     "dotenv": "^16.5.0",
     "express": "^5.1.0",
+    "jsonwebtoken": "^9.0.2",
     "multer": "^1.4.5-lts.2",
     "swagger-jsdoc": "^6.2.8",
     "swagger-ui-express": "^5.0.1",
@@ -25,9 +30,11 @@
     "uuid": "^11.1.0"
   },
   "devDependencies": {
+    "@types/bcrypt": "^5.0.2",
     "@types/cors": "^2.8.18",
     "@types/express": "^5.0.1",
     "@types/jest": "^29.5.14",
+    "@types/jsonwebtoken": "^9.0.9",
     "@types/multer": "^1.4.12",
     "@types/node": "^22.15.17",
     "@types/supertest": "^6.0.3",
@@ -38,7 +45,9 @@
     "@typescript-eslint/parser": "^8.32.0",
     "eslint": "^9.26.0",
     "jest": "^29.7.0",
+    "prisma": "^6.8.2",
     "supertest": "^7.1.0",
+    "testcontainers": "^10.28.0",
     "ts-jest": "^29.3.2",
     "ts-node-dev": "^2.0.0",
     "typescript": "^5.8.3"
