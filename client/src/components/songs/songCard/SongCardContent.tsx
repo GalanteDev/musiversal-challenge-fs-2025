@@ -1,4 +1,4 @@
-import { FaTrash } from "react-icons/fa";
+import { FaEdit, FaTrash } from "react-icons/fa";
 import Spinner from "@/components/ui/Spinner";
 import { useMemo } from "react";
 
@@ -8,6 +8,7 @@ interface SongCardContentProps {
   showHoverEffects: boolean;
   isDeleting: boolean;
   onDeleteClick: () => void;
+  onEditClick?: () => void;
 }
 
 export default function SongCardContent({
@@ -16,6 +17,7 @@ export default function SongCardContent({
   showHoverEffects,
   isDeleting,
   onDeleteClick,
+  onEditClick,
 }: SongCardContentProps) {
   const randomYear = useMemo(() => Math.floor(Math.random() * 26) + 1990, []);
   const randomDuration = useMemo(() => {
@@ -70,6 +72,20 @@ export default function SongCardContent({
           <div className="mr-1 sm:mr-1.5 text-[#FFCC00]">{randomDuration}</div>
         </div>
         <div className="flex space-x-3">
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              e.preventDefault();
+              onEditClick?.();
+            }}
+            title={`Edit ${name}`}
+            className={`text-white hover:text-[#FFCC00] p-1 sm:p-2.5 rounded-full hover:bg-white/10 transition-all duration-700 ease-out ${
+              showHoverEffects ? "opacity-100 scale-100" : "opacity-0 scale-90"
+            }`}
+            aria-label={`Edit ${name}`}
+          >
+            <FaEdit size={20} />
+          </button>
           <button
             onClick={(e) => {
               e.stopPropagation();

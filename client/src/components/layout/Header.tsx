@@ -1,9 +1,15 @@
 "use client";
 
 import { useState } from "react";
+import { useAuth } from "@/context/AuthContext";
 
 export default function Header() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const { user, logout, loading } = useAuth();
+
+  if (loading) {
+    return null;
+  }
 
   return (
     <header className="bg-[#121212] text-white border-b border-[#222222]">
@@ -51,18 +57,32 @@ export default function Header() {
 
           {/* Right side buttons */}
           <div className="hidden md:flex items-center space-x-4">
-            <a
-              href="https://musiversal.com/"
-              className="text-gray-300 hover:text-white px-3 py-2 text-sm font-medium transition-colors duration-200"
-            >
-              Login
-            </a>
-            <a
-              href="https://musiversal.com/"
-              className="bg-[#FFCC00] hover:bg-[#FFD700] text-black font-medium px-4 py-2 rounded-md text-sm transition-colors duration-200"
-            >
-              JOIN WAITLIST
-            </a>
+            {user ? (
+              <>
+                <span className="text-gray-300">Hello, {user.email}</span>
+                <button
+                  onClick={() => logout()}
+                  className="bg-red-600 hover:bg-red-700 text-white px-3 py-2 rounded-md text-sm transition-colors duration-200"
+                >
+                  Logout
+                </button>
+              </>
+            ) : (
+              <>
+                <a
+                  href="/login"
+                  className="text-gray-300 hover:text-white px-3 py-2 text-sm font-medium transition-colors duration-200"
+                >
+                  Login
+                </a>
+                <a
+                  href="https://musiversal.com/"
+                  className="bg-[#FFCC00] hover:bg-[#FFD700] text-black font-medium px-4 py-2 rounded-md text-sm transition-colors duration-200"
+                >
+                  JOIN WAITLIST
+                </a>
+              </>
+            )}
           </div>
 
           {/* Mobile menu button */}
@@ -71,7 +91,7 @@ export default function Header() {
               type="button"
               className="inline-flex items-center justify-center p-2 rounded-md text-gray-400 hover:text-white hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-white"
               aria-controls="mobile-menu"
-              aria-expanded="false"
+              aria-expanded={isMobileMenuOpen}
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
             >
               <span className="sr-only">Open main menu</span>
@@ -124,7 +144,7 @@ export default function Header() {
               Unlimited
             </a>
             <a
-              href="https://musiversal.com/roaster"
+              href="https://musiversal.com/hire-session-musicians"
               className="text-gray-300 hover:text-white block px-3 py-2 text-base font-medium"
             >
               Roster
@@ -141,18 +161,38 @@ export default function Header() {
             >
               Blog
             </a>
-            <a
-              href="https://musiversal.com/"
-              className="text-gray-300 hover:text-white block px-3 py-2 text-base font-medium"
-            >
-              Login
-            </a>
-            <a
-              href="https://musiversal.com/"
-              className="bg-[#FFCC00] hover:bg-[#FFD700] text-black font-medium block px-3 py-2 rounded-md text-base mt-4 mx-2"
-            >
-              JOIN WAITLIST
-            </a>
+
+            {user ? (
+              <>
+                <span className="block px-3 py-2 text-base text-gray-300">
+                  Hello, {user.email}
+                </span>
+                <button
+                  onClick={() => {
+                    logout();
+                    setIsMobileMenuOpen(false);
+                  }}
+                  className="w-full text-left bg-red-600 hover:bg-red-700 text-white px-3 py-2 rounded-md text-base font-medium transition-colors duration-200"
+                >
+                  Logout
+                </button>
+              </>
+            ) : (
+              <>
+                <a
+                  href="/login"
+                  className="text-gray-300 hover:text-white block px-3 py-2 text-base font-medium"
+                >
+                  Login
+                </a>
+                <a
+                  href="https://musiversal.com/"
+                  className="bg-[#FFCC00] hover:bg-[#FFD700] text-black font-medium block px-3 py-2 rounded-md text-base mt-4 mx-2"
+                >
+                  JOIN WAITLIST
+                </a>
+              </>
+            )}
           </div>
         </div>
       )}

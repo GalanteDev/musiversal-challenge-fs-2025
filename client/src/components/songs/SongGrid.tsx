@@ -1,16 +1,10 @@
-"use client";
+import type { Song } from "@/types";
 import SongCard from "./songCard/SongCard";
-
-interface Song {
-  id: string;
-  name: string;
-  artist: string;
-  imageUrl: string;
-}
 
 interface SongGridProps {
   songs: Song[];
   onDeleteSong: (id: string) => Promise<void>;
+  onEditClick: (song: Song) => void; // agregar
   isLoading?: boolean;
   deletingSongIds?: Set<string>;
 }
@@ -18,6 +12,7 @@ interface SongGridProps {
 export default function SongGrid({
   songs,
   onDeleteSong,
+  onEditClick,
   isLoading = false,
   deletingSongIds = new Set(),
 }: SongGridProps) {
@@ -69,11 +64,9 @@ export default function SongGrid({
           style={{ animationDelay: `${index * 10}ms` }}
         >
           <SongCard
-            id={song.id}
-            name={song.name}
-            artist={song.artist}
-            imageUrl={song.imageUrl}
+            song={song}
             onDelete={onDeleteSong}
+            onEditClick={() => onEditClick(song)} // llama con la canción
             isDeleting={deletingSongIds.has(song.id)}
           />
         </div>

@@ -5,6 +5,8 @@ import {
   useEffect,
   type ReactNode,
 } from "react";
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 interface AuthContextType {
   token: string | null;
@@ -25,9 +27,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const savedToken = localStorage.getItem("token");
     const savedUser = localStorage.getItem("user");
 
+    console.log("AuthProvider init:", { savedToken, savedUser });
+
     if (savedToken) setToken(savedToken);
 
-    if (savedUser && savedUser !== "undefined") {
+    if (
+      savedUser &&
+      savedUser !== "undefined" &&
+      savedUser !== "null" &&
+      savedUser !== null
+    ) {
       try {
         setUser(JSON.parse(savedUser));
       } catch {
@@ -37,12 +46,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setUser(null);
     }
 
-    setLoading(false); // <-- indica que ya terminó de cargar auth
+    setLoading(false);
   }, []);
 
-  const login = (token: string, user: { id: string; email: string }) => {
+  const login = (token: string, user: { id: string; email: string } | null) => {
     localStorage.setItem("token", token);
-    localStorage.setItem("user", JSON.stringify(user));
+
+    if (user && typeof user === "object") {
+      localStorage.setItem("user", JSON.stringify(user));
+    } else {
+      localStorage.removeItem("user");
+    }
+
     setToken(token);
     setUser(user);
   };
@@ -57,6 +72,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   return (
     <AuthContext.Provider value={{ token, user, login, logout, loading }}>
       {children}
+      <ToastContainer position="top-right" autoClose={3000} />
     </AuthContext.Provider>
   );
 }

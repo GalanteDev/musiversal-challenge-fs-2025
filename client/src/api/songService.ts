@@ -59,3 +59,11 @@ export async function deleteSong(
   const { data } = await axiosInstance.delete(`/songs/${id}`);
   return data;
 }
+
+export async function editSong(
+  id: string,
+  song: { name: string; artist: string; imageUrl?: string }
+): Promise<Song> {
+  const { data } = await axiosInstance.put(`/songs/${id}`, song);
+  return data;
+}

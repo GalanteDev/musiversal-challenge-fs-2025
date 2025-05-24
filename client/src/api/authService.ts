@@ -4,10 +4,7 @@ const API_URL = import.meta.env.VITE_API_URL;
 
 export interface LoginResponse {
   token: string;
-  user: {
-    id: string;
-    email: string;
-  };
+  email: string;
 }
 
 export async function login(
