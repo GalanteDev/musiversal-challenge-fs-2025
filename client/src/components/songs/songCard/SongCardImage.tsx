@@ -14,8 +14,11 @@ export default function SongCardImage({
   showHoverEffects,
 }: SongCardImageProps) {
   const [imageLoaded, setImageLoaded] = useState(false);
-  const formattedImageUrl = `${import.meta.env.VITE_API_URL}${imageUrl}`;
+  const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL;
 
+  const formattedImageUrl = imageUrl.startsWith("http")
+    ? imageUrl
+    : `${SUPABASE_URL}${imageUrl}`;
   return (
     <div className="absolute inset-0 w-full h-full bg-[#252525] overflow-hidden">
       {!imageLoaded && (

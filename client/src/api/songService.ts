@@ -1,50 +1,61 @@
+import axios from "axios";
 import type { Song } from "@/types";
 
 const API_URL = import.meta.env.VITE_API_URL;
 
-async function parseErrorResponse(res: Response): Promise<never> {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  let payload: any;
-  try {
-    payload = await res.json();
-  } catch {
-    throw new Error(res.statusText || `Error ${res.status}`);
-  }
+const axiosInstance = axios.create({
+  baseURL: API_URL,
+});
 
-  if (Array.isArray(payload.errors) && payload.errors.length > 0) {
-    throw new Error(payload.errors[0]);
-  }
-  if (typeof payload.error === "string") {
-    throw new Error(payload.error);
-  }
-  if (typeof payload.message === "string") {
-    throw new Error(payload.message);
-  }
+axiosInstance.interceptors.request.use(
+  (config) => {
+    const token = localStorage.getItem("token");
+    if (token && config.headers) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
+    return config;
+  },
+  (error) => Promise.reject(error)
+);
 
-  throw new Error(res.statusText || `Error ${res.status}`);
+export interface UploadUrlResponse {
+  uploadUrl: string;
+  publicUrl: string;
+}
+
+export async function getUploadUrl(
+  fileType: string
+): Promise<UploadUrlResponse> {
+  const { data } = await axiosInstance.post("/songs/upload-url", { fileType });
+  return data;
+}
+
+export async function uploadFileToSignedUrl(
+  uploadUrl: string,
+  file: File
+): Promise<void> {
+  await axios.put(uploadUrl, file, {
+    headers: { "Content-Type": file.type },
+  });
+}
+
+export async function addSong(song: {
+  name: string;
+  artist: string;
+  imageUrl: string;
+}): Promise<Song> {
+  const { data } = await axiosInstance.post("/songs", song);
+  return data;
 }
 
 export async function getAllSongs(): Promise<Song[]> {
-  const res = await fetch(`${API_URL}/songs`);
-  if (!res.ok) await parseErrorResponse(res);
-  return res.json();
-}
-
-export async function addSong(formData: FormData): Promise<Song> {
-  const res = await fetch(`${API_URL}/songs`, {
-    method: "POST",
-    body: formData,
-  });
-  if (!res.ok) await parseErrorResponse(res);
-  return res.json();
+  const { data } = await axiosInstance.get("/songs");
+  return data;
 }
 
 export async function deleteSong(
   id: string
 ): Promise<{ status: string; message: string }> {
-  const res = await fetch(`${API_URL}/songs/${id}`, {
-    method: "DELETE",
-  });
-  if (!res.ok) await parseErrorResponse(res);
-  return res.json();
+  const { data } = await axiosInstance.delete(`/songs/${id}`);
+  return data;
 }

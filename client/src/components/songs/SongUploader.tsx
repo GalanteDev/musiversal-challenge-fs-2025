@@ -1,14 +1,10 @@
 "use client";
 
-import { useRef, useState, useEffect } from "react";
+import { useState, useRef } from "react";
 import { useForm, FormProvider } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import Spinner from "../ui/Spinner";
-
-interface SongUploaderProps {
-  onAddSong: (formData: FormData) => Promise<boolean>;
-}
 
 const MAX_IMAGE_SIZE = 2 * 1024 * 1024; // 2MB
 const ACCEPTED_IMAGE_TYPES = ["image/jpeg", "image/jpg", "image/png"];
@@ -23,17 +19,19 @@ const songSchema = z.object({
       message: "Image is too large. Max size is 2MB.",
     })
     .refine((files) => ACCEPTED_IMAGE_TYPES.includes(files?.[0]?.type), {
-      message: "Invalid image type. Only JPG, PNG, and WebP are allowed.",
+      message: "Invalid image type. Only JPG, PNG are allowed.",
     }),
 });
 
 type SongFormSchema = z.infer<typeof songSchema>;
 
+interface SongUploaderProps {
+  onAddSong: (formData: FormData) => Promise<boolean>;
+}
+
 export default function SongUploader({ onAddSong }: SongUploaderProps) {
   const [imagePreview, setImagePreview] = useState<string | null>(null);
-  const [isDragging, setIsDragging] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const dropAreaRef = useRef<HTMLDivElement>(null);
 
   const methods = useForm<SongFormSchema>({
     resolver: zodResolver(songSchema),
@@ -49,69 +47,6 @@ export default function SongUploader({ onAddSong }: SongUploaderProps) {
     clearErrors,
     formState: { errors, isSubmitting },
   } = methods;
-
-  const removeImage = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    setImagePreview(null);
-    if (fileInputRef.current) fileInputRef.current.value = "";
-    setValue("image", undefined);
-    clearErrors("image");
-  };
-
-  useEffect(() => {
-    const dropArea = dropAreaRef.current;
-    if (!dropArea) return;
-
-    const handleDragOver = (e: DragEvent) => {
-      e.preventDefault();
-      e.stopPropagation();
-    };
-
-    const handleDragEnter = (e: DragEvent) => {
-      e.preventDefault();
-      e.stopPropagation();
-      setIsDragging(true);
-    };
-
-    const handleDragLeave = (e: DragEvent) => {
-      e.preventDefault();
-      e.stopPropagation();
-      if (e.currentTarget === e.target) setIsDragging(false);
-    };
-
-    const handleDrop = (e: DragEvent) => {
-      e.preventDefault();
-      e.stopPropagation();
-      setIsDragging(false);
-
-      const files = e.dataTransfer?.files;
-      if (files && files.length > 0) {
-        const file = files[0];
-        if (file.type.startsWith("image/")) {
-          const reader = new FileReader();
-          reader.onload = () => setImagePreview(reader.result as string);
-          reader.readAsDataURL(file);
-          setValue("image", [file]);
-          clearErrors("image");
-        } else {
-          setError("image", { message: "Please upload a valid image file." });
-        }
-      }
-    };
-
-    dropArea.addEventListener("dragover", handleDragOver);
-    dropArea.addEventListener("dragenter", handleDragEnter);
-    dropArea.addEventListener("dragleave", handleDragLeave);
-    dropArea.addEventListener("drop", handleDrop);
-
-    return () => {
-      dropArea.removeEventListener("dragover", handleDragOver);
-      dropArea.removeEventListener("dragenter", handleDragEnter);
-      dropArea.removeEventListener("dragleave", handleDragLeave);
-      dropArea.removeEventListener("drop", handleDrop);
-    };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [setValue, clearErrors]);
 
   const onSubmit = async (data: SongFormSchema) => {
     const formData = new FormData();
@@ -133,7 +68,6 @@ export default function SongUploader({ onAddSong }: SongUploaderProps) {
         error?.response?.data?.error ||
         error?.message ||
         "Failed to upload song. Please try again.";
-
       setError("root", { message: backendMessage });
     }
   };
@@ -147,11 +81,9 @@ export default function SongUploader({ onAddSong }: SongUploaderProps) {
           </div>
         )}
 
+        {/* Name Input */}
         <div>
-          <label
-            htmlFor="name"
-            className="block text-sm font-medium mb-1.5 text-gray-300"
-          >
+          <label className="block text-sm font-medium mb-1.5 text-gray-300">
             Song Name <span className="text-red-500">*</span>
           </label>
           <input
@@ -172,11 +104,9 @@ export default function SongUploader({ onAddSong }: SongUploaderProps) {
           )}
         </div>
 
+        {/* Artist Input */}
         <div>
-          <label
-            htmlFor="artist"
-            className="block text-sm font-medium mb-1.5 text-gray-300"
-          >
+          <label className="block text-sm font-medium mb-1.5 text-gray-300">
             Artist <span className="text-red-500">*</span>
           </label>
           <input
@@ -197,22 +127,16 @@ export default function SongUploader({ onAddSong }: SongUploaderProps) {
           )}
         </div>
 
+        {/* Image Upload */}
         <div>
-          <label
-            htmlFor="image"
-            className="block text-sm font-medium mb-1.5 text-gray-300"
-          >
+          <label className="block text-sm font-medium mb-1.5 text-gray-300">
             Cover Image <span className="text-red-500">*</span>
           </label>
-
           <div
-            ref={dropAreaRef}
             onClick={() => fileInputRef.current?.click()}
-            className={`mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-dashed rounded-md transition-all duration-300 cursor-pointer ${
+            className={`mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-dashed rounded-md cursor-pointer transition-colors duration-300 ${
               errors.image
                 ? "border-red-500 bg-red-900/5"
-                : isDragging
-                ? "border-[#FFCC00] bg-[#FFCC00]/5"
                 : "border-[#333333] hover:border-[#444444]"
             }`}
             aria-invalid={!!errors.image}
@@ -227,30 +151,26 @@ export default function SongUploader({ onAddSong }: SongUploaderProps) {
                   />
                   <button
                     type="button"
-                    onClick={removeImage}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setImagePreview(null);
+                      setValue("image", undefined);
+                      if (fileInputRef.current) fileInputRef.current.value = "";
+                      clearErrors("image");
+                    }}
                     className="absolute -top-2 -right-2 bg-[#1f1f1f] border border-[#333333] rounded-full p-1 text-gray-400 hover:text-white transition-colors duration-200"
                     aria-label="Remove image"
                   >
-                    <svg
-                      className="w-4 h-4"
-                      viewBox="0 0 24 24"
-                      fill="currentColor"
-                    >
-                      <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z" />
-                    </svg>
+                    ✕
                   </button>
                 </div>
               ) : (
                 <svg
-                  className={`mx-auto h-12 w-12 transition-colors duration-300 ${
-                    errors.image
-                      ? "text-red-500"
-                      : isDragging
-                      ? "text-[#FFCC00]"
-                      : "text-gray-500"
+                  className={`mx-auto h-12 w-12 ${
+                    errors.image ? "text-red-500" : "text-gray-500"
                   }`}
-                  stroke="currentColor"
                   fill="none"
+                  stroke="currentColor"
                   viewBox="0 0 48 48"
                   aria-hidden="true"
                 >
@@ -263,60 +183,48 @@ export default function SongUploader({ onAddSong }: SongUploaderProps) {
                 </svg>
               )}
               <div className="flex justify-center text-sm text-gray-500">
-                <span className="relative cursor-pointer bg-[#252525] rounded-md font-medium text-[#FFCC00] hover:text-[#FFD700] focus-within:outline-none transition-colors duration-200 px-2">
+                <span className="relative cursor-pointer bg-[#252525] rounded-md font-medium text-[#FFCC00] hover:text-[#FFD700] px-2">
                   Upload a file
+                  <input
+                    id="image"
+                    type="file"
+                    accept="image/jpeg,image/jpg,image/png"
+                    ref={fileInputRef}
+                    className="sr-only"
+                    onChange={(e) => {
+                      const file = e.target.files?.[0];
+                      if (file) {
+                        const reader = new FileReader();
+                        reader.onload = () =>
+                          setImagePreview(reader.result as string);
+                        reader.readAsDataURL(file);
+                        setValue("image", [file]);
+                        clearErrors("image");
+                      }
+                    }}
+                    disabled={isSubmitting}
+                    required
+                  />
                 </span>
-                <input
-                  id="image"
-                  type="file"
-                  accept="image/*"
-                  ref={fileInputRef}
-                  className="sr-only"
-                  onChange={(e) => {
-                    const file = e.target.files?.[0];
-                    if (file) {
-                      const reader = new FileReader();
-                      reader.onload = () =>
-                        setImagePreview(reader.result as string);
-                      reader.readAsDataURL(file);
-                      setValue("image", [file]);
-                      clearErrors("image");
-                    }
-                  }}
-                  disabled={isSubmitting}
-                  required
-                />
                 <p className="pl-1">or drag and drop</p>
               </div>
-              <p
-                className={`text-xs transition-colors duration-300 ${
-                  errors.image
-                    ? "text-red-500"
-                    : isDragging
-                    ? "text-[#FFCC00]"
-                    : "text-gray-500"
-                }`}
-              >
-                {isDragging
-                  ? "Drop your image here"
-                  : "PNG, JPG, JPEG up to 2MB"}
-              </p>
+              {errors.image && (
+                <p className="mt-1 text-red-500 text-xs" role="alert">
+                  {errors.image.message as string}
+                </p>
+              )}
             </div>
           </div>
-          {errors.image && (
-            <p className="mt-1 text-red-500 text-xs" role="alert">
-              {errors.image.message as string}
-            </p>
-          )}
         </div>
 
+        {/* Submit Button */}
         <button
           type="submit"
           disabled={isSubmitting}
           className={`w-full py-2.5 px-4 rounded-md font-medium flex items-center justify-center gap-4 transition-all duration-300 ${
             isSubmitting
               ? "bg-[#333333] text-gray-400 cursor-not-allowed"
-              : "bg-[#FFCC00] text-black hover:bg-[#FFD700] active:scale-[0.98]"
+              : "bg-[#FFCC00] text-black hover:bg-[#FFD700]"
           }`}
         >
           {isSubmitting ? "Adding Song..." : "Add Song"}
