@@ -44,8 +44,15 @@ async function createUserIfNotExists(email: string, password: string) {
 }
 
 async function main() {
-  await createUserIfNotExists(EMPTY_USER_EMAIL, DEMO_PASSWORD);
+  const emptyUser = await createUserIfNotExists(
+    EMPTY_USER_EMAIL,
+    DEMO_PASSWORD
+  );
   const fullUser = await createUserIfNotExists(FULL_USER_EMAIL, DEMO_PASSWORD);
+
+  // Clear empty user's songs to ensure it stays empty
+  await prisma.song.deleteMany({ where: { userId: emptyUser.id } });
+  console.log("✅ Emptied empty user's songs");
 
   if (process.env.NODE_ENV !== "production") {
     const confirmed = await askConfirmation();
