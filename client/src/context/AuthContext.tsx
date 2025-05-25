@@ -1,3 +1,4 @@
+import { useQueryClient } from "@tanstack/react-query";
 import {
   createContext,
   useContext,
@@ -13,15 +14,16 @@ interface AuthContextType {
   user: { id: string; email: string } | null;
   login: (token: string, user: { id: string; email: string }) => void;
   logout: () => void;
-  loading: boolean; // <-- nuevo
+  loading: boolean;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
+  const queryClient = useQueryClient();
   const [token, setToken] = useState<string | null>(null);
   const [user, setUser] = useState<{ id: string; email: string } | null>(null);
-  const [loading, setLoading] = useState(true); // <-- nuevo
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const savedToken = localStorage.getItem("token");
@@ -67,6 +69,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     localStorage.removeItem("user");
     setToken(null);
     setUser(null);
+    queryClient.clear();
   };
 
   return (
