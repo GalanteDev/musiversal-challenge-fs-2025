@@ -1,4 +1,3 @@
-// test-utils/setup/postgres.testcontainer.ts
 import { GenericContainer } from "testcontainers";
 
 export const startTestDatabase = async () => {
@@ -15,9 +14,6 @@ export const startTestDatabase = async () => {
   const host = container.getHost();
   const url = `postgresql://test:test@${host}:${port}/musicapp_test`;
 
-  process.env.DATABASE_URL = url;
-
-  // 👇 Agregá `stop` acá
   return {
     container,
     url,

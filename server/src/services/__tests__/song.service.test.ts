@@ -3,7 +3,19 @@ import { SongService } from "../song.service";
 import * as songRepositoryModule from "../../repositories/song.repository";
 import { HttpError } from "../../middleware/error.middleware";
 
+// Mock the songRepository module
 jest.mock("../../repositories/song.repository");
+
+// Mock Supabase client and .remove method to avoid errors in tests
+jest.mock("@supabase/supabase-js", () => ({
+  createClient: () => ({
+    storage: {
+      from: () => ({
+        remove: jest.fn().mockResolvedValue({ data: null, error: null }),
+      }),
+    },
+  }),
+}));
 
 const mockedSongRepository = songRepositoryModule.songRepository as jest.Mocked<
   typeof songRepositoryModule.songRepository
@@ -24,7 +36,6 @@ describe("SongService unit tests", () => {
         artist: "Artist",
         imageUrl: "image.png",
         userId: "user-1",
-        createdAt: new Date(),
       });
 
       const result = await songService.create(
@@ -69,7 +80,6 @@ describe("SongService unit tests", () => {
         artist: "Old Artist",
         imageUrl: "old.png",
         userId: "user-1",
-        createdAt: new Date(),
       });
 
       mockedSongRepository.update.mockResolvedValue({
@@ -78,7 +88,6 @@ describe("SongService unit tests", () => {
         artist: "Updated Artist",
         imageUrl: "updated.png",
         userId: "user-1",
-        createdAt: new Date(),
       });
 
       const result = await songService.update(
@@ -116,17 +125,15 @@ describe("SongService unit tests", () => {
         id: "song-1",
         name: "Delete Song",
         artist: "Artist",
-        imageUrl: "delete.png",
+        imageUrl: "https://supabase-url/songs/delete.png",
         userId: "user-1",
-        createdAt: new Date(),
       });
       mockedSongRepository.delete.mockResolvedValue({
         id: "song-1",
         name: "Delete Song",
         artist: "Artist",
-        imageUrl: "delete.png",
+        imageUrl: "https://supabase-url/songs/delete.png",
         userId: "user-1",
-        createdAt: new Date(),
       });
 
       const result = await songService.delete("song-1");
