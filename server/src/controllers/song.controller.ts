@@ -36,12 +36,20 @@ const supabase = createClient(
  *                 $ref: '#/components/schemas/Song'
  */
 export const getAllSongs = async (
-  _req: Request,
+  req: AuthRequest,
   res: Response,
   next: NextFunction
 ): Promise<void> => {
   try {
-    const songs = await songService.getAll();
+    const userId = req.user?.id;
+
+    if (!userId) {
+      res
+        .status(401)
+        .json({ error: "Unauthorized: user not found in request." });
+      return;
+    }
+    const songs = await songService.getAllByUserId(userId);
     res.json(songs);
   } catch (err) {
     next(err);
@@ -106,111 +114,51 @@ export const createSong = async (
   }
 };
 
-/**
- * @swagger
- * /songs/{id}:
- *   put:
- *     summary: Update name and artist of a song
- *     tags: [Songs]
- *     parameters:
- *       - in: path
- *         name: id
- *         required: true
- *         schema:
- *           type: string
- *         description: Song identifier
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             required:
- *               - name
- *               - artist
- *             properties:
- *               name:
- *                 type: string
- *               artist:
- *                 type: string
- *     responses:
- *       200:
- *         description: Updated successfully
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/Song'
- *       400:
- *         description: Validation failed
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/ErrorResponse'
- *       404:
- *         description: Song not found
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/ErrorResponse'
- */
 export const updateSong = async (
-  req: Request,
+  req: AuthRequest,
   res: Response,
   next: NextFunction
 ): Promise<void> => {
   const { id } = req.params;
   const { name, artist, imageUrl } = req.body;
+  const userId = req.user!.id;
 
   try {
-    const updated = await songService.update(id, name, artist, imageUrl);
-    if (!updated) {
+    const song = await songService.findById(id);
+    if (!song) {
       throw new HttpError(404, ["Song not found."]);
     }
+
+    if (song.userId !== userId) {
+      throw new HttpError(403, ["You are not authorized to update this song."]);
+    }
+
+    const updated = await songService.update(id, name, artist, imageUrl);
     res.json(updated);
   } catch (err) {
     next(err);
   }
 };
 
-/**
- * @swagger
- * /songs/{id}:
- *   delete:
- *     summary: Delete a song by ID
- *     tags: [Songs]
- *     parameters:
- *       - in: path
- *         name: id
- *         required: true
- *         schema:
- *           type: string
- *         description: Song identifier
- *     responses:
- *       200:
- *         description: Deleted successfully
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/SuccessResponse'
- *       404:
- *         description: Song not found
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/ErrorResponse'
- */
 export const deleteSong = async (
-  req: Request,
+  req: AuthRequest,
   res: Response,
   next: NextFunction
 ): Promise<void> => {
   const { id } = req.params;
+  const userId = req.user!.id;
 
   try {
-    const deleted = await songService.delete(id);
-    if (!deleted) {
+    const song = await songService.findById(id);
+    if (!song) {
       throw new HttpError(404, ["Song not found."]);
     }
+
+    if (song.userId !== userId) {
+      throw new HttpError(403, ["You are not authorized to delete this song."]);
+    }
+
+    await songService.delete(id);
     res.json({ status: "success", message: "Song deleted." });
   } catch (err) {
     next(err);

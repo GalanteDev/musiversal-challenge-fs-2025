@@ -13,6 +13,17 @@ export class SongRepository {
     });
   }
 
+  async getAllByUserId(userId: string) {
+    return prisma.song.findMany({
+      where: { userId },
+      include: {
+        user: {
+          select: { id: true, email: true },
+        },
+      },
+    });
+  }
+
   async findByNameAndArtist(name: string, artist: string, userId: string) {
     return prisma.song.findFirst({
       where: {

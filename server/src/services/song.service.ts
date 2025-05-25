@@ -12,6 +12,14 @@ export class SongService {
     return songRepository.getAll();
   }
 
+  async getAllByUserId(userId: string) {
+    return songRepository.getAllByUserId(userId);
+  }
+
+  async findById(id: string) {
+    return songRepository.findById(id);
+  }
+
   async create(name: string, artist: string, imageUrl: string, userId: string) {
     const existing = await songRepository.findByNameAndArtist(
       name,
