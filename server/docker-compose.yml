@@ -7,15 +7,10 @@ services:
     ports:
       - "4000:4000"
     volumes:
-      - ./:/app # Mount current folder inside container for live reload
-      - /app/node_modules # Prevent overwriting node_modules
-    environment:
-      - NODE_ENV=development
-      - DATABASE_URL=postgresql://musicuser:musicpass@postgres:5432/musicapp
-      - SUPABASE_URL=https://qbnjknvemcyzsazauxah.supabase.co
-      - SUPABASE_SERVICE_ROLE_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFibmprbnZlbWN5enNhemF1eGFoIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc0ODAyMTI4NSwiZXhwIjoyMDYzNTk3Mjg1fQ.I3s87buzCZ_HJRe-B7Dk_YHmjWa2efPwsG14ASEePMA
-      - SUPABASE_BUCKET=songs
-      - JWT_SECRET=secret123
+      - ./:/app
+      - /app/node_modules
+    env_file:
+      - .env.dev
     depends_on:
       - postgres
 
