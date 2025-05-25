@@ -19,35 +19,54 @@ const PROTECTED_SONGS = [
   },
   { name: "Roots Bloody Roots", artist: "Sepultura", file: "sepultura.png" },
   { name: "Raining Blood", artist: "Slayer", file: "slayer.png" },
+  { name: "Black Sabbath", artist: "Black Sabbath", file: "blacksabbath.png" },
+  { name: "Freak on a Leash", artist: "Korn", file: "korn.png" },
+  { name: "Pull the Plug", artist: "Death", file: "death.png" },
+  { name: "Total Destruction", artist: "Destruction", file: "destruction.png" },
 ];
 
-const DEMO_EMAIL = "galante.julian@gmail.com";
-const plainPassword = process.env.DEMO_PASSWORD!;
+const DEMO_PASSWORD = process.env.DEMO_PASSWORD!;
+const EMPTY_USER_EMAIL = "empty.user@gmail.com";
+const FULL_USER_EMAIL = "demo.user@gmail.com";
+
+async function createUserIfNotExists(email: string, password: string) {
+  let user = await prisma.user.findUnique({ where: { email } });
+  if (!user) {
+    const hashedPassword = await bcrypt.hash(password, 10);
+    user = await prisma.user.create({
+      data: { email, password: hashedPassword },
+    });
+    console.log(`✅ User Created: ${user.email}`);
+  }
+  return user;
+}
 
 async function main() {
+  const emptyUser = await createUserIfNotExists(
+    EMPTY_USER_EMAIL,
+    DEMO_PASSWORD
+  );
+  const fullUser = await createUserIfNotExists(FULL_USER_EMAIL, DEMO_PASSWORD);
+
   if (process.env.NODE_ENV !== "production") {
     const confirmed = await askConfirmation();
     if (!confirmed) return;
-    await prisma.song.deleteMany();
-    const { data: files, error } = await supabase.storage.from("songs").list();
-    if (files) {
-      const names = files.map((file) => file.name);
-      await supabase.storage.from("songs").remove(names);
-      console.log("✅ Seed images removed from Supabase storage");
+
+    await prisma.song.deleteMany({ where: { userId: fullUser.id } });
+    console.log("✅ Deleted demo user's songs from DB");
+
+    const { data: files } = await supabase.storage.from("songs").list();
+    if (files && files.length > 0) {
+      const filesToRemove = PROTECTED_SONGS.map((s) => s.file);
+      const toRemove = files.filter((file) =>
+        filesToRemove.includes(file.name)
+      );
+      if (toRemove.length > 0) {
+        const names = toRemove.map((file) => file.name);
+        await supabase.storage.from("songs").remove(names);
+        console.log("✅ Removed demo user seed images from Supabase storage");
+      }
     }
-  }
-
-  let user = await prisma.user.findUnique({ where: { email: DEMO_EMAIL } });
-
-  if (!user) {
-    const hashedPassword = await bcrypt.hash(plainPassword, 10);
-    user = await prisma.user.create({
-      data: {
-        email: DEMO_EMAIL,
-        password: hashedPassword,
-      },
-    });
-    console.log(`✅ User Created: ${user.email}`);
   }
 
   for (const song of PROTECTED_SONGS) {
@@ -71,7 +90,7 @@ async function main() {
         name: song.name,
         artist: song.artist,
         imageUrl: `/storage/v1/object/public/songs/${song.file}`,
-        user: { connect: { id: user.id } },
+        userId: fullUser.id,
       },
     });
 
@@ -88,7 +107,7 @@ function askConfirmation(): Promise<boolean> {
   });
   return new Promise((resolve) => {
     rl.question(
-      "This will delete all songs and images. Continue? (y/N): ",
+      "This will delete demo user's songs and images. Continue? (y/N): ",
       (answer) => {
         rl.close();
         resolve(answer.toLowerCase() === "y");
@@ -98,5 +117,8 @@ function askConfirmation(): Promise<boolean> {
 }
 
 main()
-  .catch((e) => console.error(e))
+  .catch((e) => {
+    console.error(e);
+    process.exit(1);
+  })
   .finally(() => prisma.$disconnect());
