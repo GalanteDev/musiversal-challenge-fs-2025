@@ -4,6 +4,8 @@ import fs from "fs";
 import path from "path";
 import bcrypt from "bcrypt";
 
+const SUPABASE_URL = process.env.SUPABASE_URL!;
+
 const prisma = new PrismaClient();
 
 const supabase = createClient(
@@ -86,7 +88,7 @@ async function main() {
       data: {
         name: song.name,
         artist: song.artist,
-        imageUrl: `/storage/v1/object/public/songs/${song.file}`,
+        imageUrl: `${SUPABASE_URL}/storage/v1/object/public/songs/${song.file}`,
         userId: fullUser.id,
       },
     });
