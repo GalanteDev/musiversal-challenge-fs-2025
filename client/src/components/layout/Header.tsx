@@ -1,11 +1,11 @@
-"use client";
-
 import { useState } from "react";
 import { useAuth } from "@/context/AuthContext";
+import { useNavigate } from "react-router-dom";
 
 export default function Header() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const { user, logout, loading } = useAuth();
+  const navigate = useNavigate();
 
   if (loading) {
     return null;
@@ -13,7 +13,7 @@ export default function Header() {
 
   const handleLogout = () => {
     logout();
-    window.location.href = "/login";
+    navigate("/login");
   };
 
   return (

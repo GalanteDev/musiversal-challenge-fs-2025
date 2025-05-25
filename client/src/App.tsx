@@ -8,6 +8,7 @@ import SongsApp from "./components/songs/SongsApp";
 import Spinner from "./components/ui/Spinner";
 import Footer from "./components/layout/Footer";
 import Header from "./components/layout/Header";
+import { BrowserRouter } from "react-router-dom";
 
 const queryClient = new QueryClient();
 
@@ -27,12 +28,14 @@ function Root() {
 
 export default function App() {
   return (
-    <AuthProvider>
-      <QueryClientProvider client={queryClient}>
-        <Header />
-        <Root />
-        <Footer />
-      </QueryClientProvider>
-    </AuthProvider>
+    <BrowserRouter>
+      <AuthProvider>
+        <QueryClientProvider client={queryClient}>
+          <Header />
+          <Root />
+          <Footer />
+        </QueryClientProvider>
+      </AuthProvider>
+    </BrowserRouter>
   );
 }
