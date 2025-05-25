@@ -42,10 +42,7 @@ async function createUserIfNotExists(email: string, password: string) {
 }
 
 async function main() {
-  const emptyUser = await createUserIfNotExists(
-    EMPTY_USER_EMAIL,
-    DEMO_PASSWORD
-  );
+  await createUserIfNotExists(EMPTY_USER_EMAIL, DEMO_PASSWORD);
   const fullUser = await createUserIfNotExists(FULL_USER_EMAIL, DEMO_PASSWORD);
 
   if (process.env.NODE_ENV !== "production") {

@@ -1,4 +1,3 @@
-// src/controllers/song.controller.ts
 import { Request, Response, NextFunction } from "express";
 import { songService } from "../services/song.service";
 import { HttpError } from "../middleware/error.middleware";
@@ -12,29 +11,6 @@ const supabase = createClient(
   process.env.SUPABASE_SERVICE_ROLE_KEY!
 );
 
-/**
- * @swagger
- * tags:
- *   name: Songs
- *   description: Song management endpoints
- */
-
-/**
- * @swagger
- * /songs:
- *   get:
- *     summary: Retrieve all songs
- *     tags: [Songs]
- *     responses:
- *       200:
- *         description: A list of songs
- *         content:
- *           application/json:
- *             schema:
- *               type: array
- *               items:
- *                 $ref: '#/components/schemas/Song'
- */
 export const getAllSongs = async (
   req: AuthRequest,
   res: Response,
@@ -56,47 +32,6 @@ export const getAllSongs = async (
   }
 };
 
-/**
- * @swagger
- * /songs:
- *   post:
- *     summary: Upload a new song, including cover image
- *     tags: [Songs]
- *     requestBody:
- *       required: true
- *       content:
- *         multipart/form-data:
- *           schema:
- *             type: object
- *             required:
- *               - name
- *               - artist
- *               - image
- *             properties:
- *               name:
- *                 type: string
- *                 description: The song title
- *               artist:
- *                 type: string
- *                 description: The performing artist
- *               image:
- *                 type: string
- *                 format: binary
- *                 description: Cover image file
- *     responses:
- *       201:
- *         description: Created successfully
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/Song'
- *       400:
- *         description: Bad request (missing fields or invalid file)
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/ErrorResponse'
- */
 export const createSong = async (
   req: AuthRequest,
   res: Response,
