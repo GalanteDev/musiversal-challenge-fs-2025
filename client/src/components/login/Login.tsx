@@ -25,20 +25,17 @@ export default function Login() {
 
   const onSubmit = async (data: LoginFormInputs) => {
     try {
-      const { token, email: userEmail } = await apiLogin(
-        data.email,
-        data.password
-      );
-      if (!userEmail) {
+      const { token, user } = await apiLogin(data.email, data.password);
+      if (!user?.email) {
         setError("email", { message: "User data is missing or invalid" });
         return;
       }
-      login(token, { id: "", email: userEmail });
+      login(token, user);
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (err: any) {
-      setError("email", {
-        message: err.response?.data?.message || "Login failed",
-      });
+      const message =
+        err?.response?.data?.message || err.message || "Login failed";
+      setError("email", { message });
     }
   };
 
