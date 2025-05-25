@@ -75,7 +75,9 @@ export default function SongsApp() {
               Your Music Library
             </h1>
             <p className="text-gray-400">
-              {songs.length} songs in your collection
+              {isLoading
+                ? "Loading songs..."
+                : `${songs.length} songs in your collection`}
             </p>
           </div>
 

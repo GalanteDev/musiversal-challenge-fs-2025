@@ -30,13 +30,7 @@ export default function SongCard(props: SongCardProps) {
   }, [props.isDeleting]);
 
   const handleDelete = async () => {
-    try {
-      await props.onDelete(props.song.id);
-      // No cerrar modal aquí para que spinner sea visible mientras isDeleting sea true
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    } catch (error) {
-      // Opcional: manejo de error aquí
-    }
+    await props.onDelete(props.song.id);
   };
 
   return (

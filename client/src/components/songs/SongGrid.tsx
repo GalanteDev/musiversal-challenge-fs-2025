@@ -4,7 +4,7 @@ import SongCard from "./songCard/SongCard";
 interface SongGridProps {
   songs: Song[];
   onDeleteSong: (id: string) => Promise<void>;
-  onEditClick: (song: Song) => void; // agregar
+  onEditClick: (song: Song) => void;
   isLoading?: boolean;
   deletingSongIds?: Set<string>;
 }
@@ -66,7 +66,7 @@ export default function SongGrid({
           <SongCard
             song={song}
             onDelete={onDeleteSong}
-            onEditClick={() => onEditClick(song)} // llama con la canción
+            onEditClick={() => onEditClick(song)}
             isDeleting={deletingSongIds.has(song.id)}
           />
         </div>

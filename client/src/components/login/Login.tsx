@@ -12,6 +12,20 @@ const loginSchema = z.object({
 
 type LoginFormInputs = z.infer<typeof loginSchema>;
 
+function FormError({ message, id }: { message?: string; id?: string }) {
+  if (!message) return null;
+  return (
+    <p
+      id={id}
+      className="mt-1 text-red-500 text-xs transition-opacity duration-300"
+      role="alert"
+      aria-live="assertive"
+    >
+      {message}
+    </p>
+  );
+}
+
 export default function Login() {
   const { login } = useAuth();
   const {
@@ -19,6 +33,7 @@ export default function Login() {
     handleSubmit,
     formState: { errors, isSubmitting },
     setError,
+    clearErrors,
   } = useForm<LoginFormInputs>({
     resolver: zodResolver(loginSchema),
   });
@@ -34,8 +49,11 @@ export default function Login() {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (err: any) {
       const message =
-        err?.response?.data?.message || err.message || "Login failed";
-      setError("email", { message });
+        err?.response?.data?.errors?.join(" ") ||
+        err?.response?.data?.message ||
+        err.message ||
+        "Login failed";
+      setError("root", { message });
     }
   };
 
@@ -47,7 +65,21 @@ export default function Login() {
             onSubmit={handleSubmit(onSubmit)}
             className="space-y-6"
             noValidate
+            aria-describedby="form-error"
           >
+            {/* Global error */}
+            {errors.root?.message && (
+              <div
+                id="form-error"
+                className="mb-4 text-red-600 bg-red-100 border border-red-400 p-3 rounded"
+                role="alert"
+                aria-live="assertive"
+              >
+                {errors.root.message}
+              </div>
+            )}
+
+            {/* Email */}
             <div>
               <label
                 htmlFor="email"
@@ -60,6 +92,9 @@ export default function Login() {
                 id="email"
                 placeholder="Enter your email"
                 {...register("email")}
+                aria-invalid={!!errors.email}
+                aria-describedby={errors.email ? "email-error" : undefined}
+                onChange={() => clearErrors("email")}
                 className={`w-full bg-[#252525] border rounded p-4 text-white placeholder-gray-400 focus:outline-none transition-colors duration-300 ${
                   errors.email
                     ? "border-red-500 focus:border-red-500 focus:ring-red-500"
@@ -67,13 +102,10 @@ export default function Login() {
                 }`}
                 disabled={isSubmitting}
               />
-              {errors.email && (
-                <p className="mt-1 text-red-500 text-xs" role="alert">
-                  {errors.email.message}
-                </p>
-              )}
+              <FormError message={errors.email?.message} id="email-error" />
             </div>
 
+            {/* Password */}
             <div>
               <label
                 htmlFor="password"
@@ -86,6 +118,11 @@ export default function Login() {
                 id="password"
                 placeholder="Enter your password"
                 {...register("password")}
+                aria-invalid={!!errors.password}
+                aria-describedby={
+                  errors.password ? "password-error" : undefined
+                }
+                onChange={() => clearErrors("password")}
                 className={`w-full bg-[#252525] border rounded p-4 text-white placeholder-gray-400 focus:outline-none transition-colors duration-300 ${
                   errors.password
                     ? "border-red-500 focus:border-red-500 focus:ring-red-500"
@@ -93,13 +130,13 @@ export default function Login() {
                 }`}
                 disabled={isSubmitting}
               />
-              {errors.password && (
-                <p className="mt-1 text-red-500 text-xs" role="alert">
-                  {errors.password.message}
-                </p>
-              )}
+              <FormError
+                message={errors.password?.message}
+                id="password-error"
+              />
             </div>
 
+            {/* Submit */}
             <button
               type="submit"
               disabled={isSubmitting}
